@@ -1,0 +1,29 @@
+#mediaContainer {
+    border: 1px solid black;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+#mediaContainer > div[style*="lightgrey"] {
+    overflow-y: auto;
+}
+
+.searchIcon {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.mediaTab {
+    margin: 10px 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.mediaTab.active {
+    background-color: #eee;
+    border: 1px solid #ddd;
+}
+
+.mediaSettings {
+    margin-top: 20px;
+}
