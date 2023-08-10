@@ -3,6 +3,11 @@
 
 <head>
     <title>Draw on Video</title>
+    <!-- <P id="images"><embed src="/media/image/images.txt"> </P>
+    <P id="audio"><embed src="/media/audio/audio.txt"> </P>
+    <P id="video"><embed src="/media/video/videos.txt"> </P> -->
+
+    </P>
     <style>
         canvas,
         video {
@@ -30,7 +35,7 @@
     <canvas id="ClipImageCanvas" style="display: none;"></canvas>
 
 
-    <div id="toolbox">
+    <div id="toolbox" style="background-color:lightcyan">
         <button id="clear">Clear</button>
         <button id="saveCanvas">Save Drawing</button>
         <button id="saveScreenshot">Save Screenshot</button><br />
@@ -104,7 +109,7 @@
                 <button id="goButton" class="searchbtn">Go</button>
             </div>
 
-            <div style="height: 200px; background-color: lightgrey;">
+            <div id="mediaDisplay" style="height: 200px; background-color: lightgrey;">
                 <li id="mediaList">
 
                 </li>

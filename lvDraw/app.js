@@ -10,9 +10,29 @@ const fs = require('fs');
 //     io.emit('drawImageToCanvas', imagesrc, targetCanvas, roomId, userId, imgSentToCanvas, rotation, scale);
 // })
 
-var Imgfiles = fs.readdirSync('./media/image/');
-var Sndfiles = fs.readdirSync('./media/audio/');
-var Vidfiles = fs.readdirSync('./media/video/');
+var Imgfiles = fs.readdirSync('./views/media/image/');
+fs.writeFile('./views/media/image/images.txt', Imgfiles.toString(), err => {
+    if (err) {
+      console.error(err);
+    }
+    // file written successfully
+});
+
+var Sndfiles = fs.readdirSync('./views/media/audio/');
+fs.writeFile('./views/media/audio/audio.txt', Sndfiles.toString(), err => {
+    if (err) {
+      console.error(err);
+    }
+    // file written successfully
+});
+
+var Vidfiles = fs.readdirSync('./views/media/video/');
+fs.writeFile('./views/media/video/videos.txt', Vidfiles.toString(), err => {
+    if (err) {
+      console.error(err);
+    }
+    // file written successfully
+});
 
 
 const http = require('http');
@@ -71,8 +91,8 @@ app.get('/search', (req, res) => {
 
 
 
-server.listen(3000, () => {
-    console.log('listening on *:3000');
+server.listen(4000, () => {
+    console.log('listening on *:4000');
 });
 
 // app.listen(PORT, () => {
