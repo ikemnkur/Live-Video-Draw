@@ -1,4 +1,6 @@
 let video = document.getElementById('video');
+let videoCanvas = document.getElementById('videoCanvas');
+var vcCTX = videoCanvas.getContext('2d');
 let canvas = document.getElementById('canvas');
 let canvasH = document.getElementById('canvasHUD');
 let ctx = canvas.getContext('2d');
@@ -19,11 +21,10 @@ let textCanvas = document.getElementById('textCanvas');
 let textCtx = textCanvas.getContext('2d');
 let textInput = document.getElementById('textInput');
 let fontSelector = document.getElementById('fontSelector');
+let fontType = document.getElementById('fontType');
 let fontSizeSelector = document.getElementById('fontSize');
 
 
-
-// const fs = require('fs');
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then((stream) => {
@@ -35,7 +36,18 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
             canvasH.height = video.videoHeight;
             textCanvas.width = video.videoWidth;
             textCanvas.height = video.videoHeight;
+            videoCanvas.width = video.videoWidth;
+            videoCanvas.height = video.videoHeight;
         });
+        video.addEventListener('play', function () {
+            var $this = this; //cache
+            (function loop() {
+                if (!$this.paused && !$this.ended) {
+                    vcCTX.drawImage($this, 0, 0);
+                    setTimeout(loop, 1000 / 30); // drawing at 30fps
+                }
+            })();
+        }, 0);
     })
     .catch((err) => {
         console.error("Error accessing media devices.", err);
@@ -134,7 +146,7 @@ modeSelect.addEventListener('change', (e) => {
         canvasH.style.display = 'none';
         textCanvas.style.display = 'none';
         ColorEditor.style.display = 'block';
-
+        StrokeSizeEditor.style.display = 'block';
     } else if (mode === 'text') {
         textCanvas.style.cursor = 'move';
         canvasH.style.display = 'none';
@@ -216,17 +228,20 @@ function drawLine(context, x1, y1, x2, y2) {
 
 textInput.addEventListener('input', renderTextPreview);
 fontSelector.addEventListener('change', renderTextPreview);
+fontType.addEventListener('change', renderTextPreview);
 fontSizeSelector.addEventListener('change', renderTextPreview);
+
 textCanvas.addEventListener('mousemove', (e) => {
     if (mode === 'text') {
         renderTextPreview(e);
     }
 });
+
 textCanvas.addEventListener('click', finalizeText);
 
 function renderTextPreview(e) {
     textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-    textCtx.font = `${fontSizeSelector.value}px ${fontSelector.value}`;
+    textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
     textCtx.fillStyle = colorPicker.value;
     let x = e ? e.offsetX : textCanvas.width / 2;
     let y = e ? e.offsetY : textCanvas.height / 2;
@@ -235,12 +250,39 @@ function renderTextPreview(e) {
 
 function finalizeText(e) {
     if (mode === 'text') {
-        ctx.font = `${fontSizeSelector.value}px ${fontSelector.value}`;
+        textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
         ctx.fillStyle = colorPicker.value;
         ctx.fillText(textInput.value, e.offsetX, e.offsetY);
         textInput.value = "";
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     }
+}
+
+
+function renderImagePreview(e) {
+    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+    textCtx.fillStyle = colorPicker.value;
+    let x = e ? e.offsetX : textCanvas.width / 2;
+    let y = e ? e.offsetY : textCanvas.height / 2;
+    textCtx.fillText(textInput.value, x, y);
+
+    base_image = new Image();
+    base_image.src = 'img/base.png';
+    context.drawImage(base_image, 100, 100)
+}
+
+function finalizeImage(e) {
+    if (mode === 'addMedia') {
+        textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+        ctx.fillStyle = colorPicker.value;
+        ctx.fillText(textInput.value, e.offsetX, e.offsetY);
+        textInput.value = "";
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    }
+    base_image = new Image();
+    base_image.src = 'img/base.png';
+    context.drawImage(base_image, 100, 100)
 }
 
 let saveCanvasButton = document.getElementById('saveCanvas');
@@ -345,7 +387,7 @@ goButton.addEventListener('click', () => {
     console.log("matches: " + matches);
     resultList.innerHTML = ''; // Clear existing list
     matches.forEach(file => {
-        
+
         const listItem = document.createElement('div');
         listItem.textContent = file;
         listItem.style.border = '2px solid black';

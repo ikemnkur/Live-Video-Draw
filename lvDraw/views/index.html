@@ -26,13 +26,13 @@
 </head>
 
 <body>
-    <video id="video" autoplay playsinline></video>
+    <video id="video" autoplay playsinline style="display: none;"></video>
 
-
+    <canvas id="videoCanvas"></canvas>
     <canvas id="canvas" style="cursor: crosshair;"></canvas>
     <canvas id="canvasHUD" style="display: none;"></canvas>
     <canvas id="textCanvas" style="display: none;"></canvas>
-    <canvas id="ClipImageCanvas" style="display: none;"></canvas>
+    <canvas id="mediaCanvas" style="display: none;"></canvas>
 
 
     <div id="toolbox" style="background-color:lightcyan">
@@ -48,6 +48,7 @@
             <option value="erase">Erase</option>
             <option value="text">Text</option>
             <option value="addMedia">Add Media</option>
+            <option value="editLiveVideo">Edit Live Video</option>
         </select><br />
 
         <div id="ColorEditor">
@@ -72,13 +73,14 @@
                 <!-- Add other fonts as desired -->
             </select>
 
-            <!--  <label for="fontType">Font Type: </label> -->
-            <!-- <select id="fontType">
-                <option value="Regular">Regular</option>
-                <option value="Bold">Bold</option>
-                <option value="Italic">Italic</option> -->
+             <label for="fontType">Font Type: </label>
+            <select id="fontType">
+                <option value="normal">Regular</option>
+                <option value="bold">Bold</option>
+                <option value="italic">Italic</option>
+                <option value="italic bold">Bold & Italic</option>
             <!-- Add other fonts as desired -->
-            <!-- </select>  -->
+            </select> 
 
             <label for="fontSize">Font Size: </label>
             <select id="fontSize">
@@ -88,14 +90,16 @@
                 <option value="20">20</option>
                 <option value="24">24</option>
                 <option value="32">32</option>
+                <option value="48">48</option>
+                <option value="64">64</option>
                 <!-- Add other sizes as desired -->
             </select>
         </div>
 
         <div id="mediaContainer" style="display: none;">
             <label>Mode:</label>
-            <input type="radio" name="mediaMode" id="library" checked> Library
-            <input type="radio" name="mediaMode" id="search"> Search
+            <input type="radio" name="mediaMode" id="library"> Library
+            <input type="radio" name="mediaMode" id="search" checked> Search
 
             <div id="mediaTabs">
                 <button class="mediaTab active" data-tab="image">Image</button>
