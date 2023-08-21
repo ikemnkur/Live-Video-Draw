@@ -4,7 +4,10 @@ let videoCanvas = document.getElementById('videoCanvas');
 let drawCanvas = document.getElementById('drawCanvas');
 let eraseCanvas = document.getElementById('eraseCanvas');
 let mediaCanvasFloat = document.getElementById('mediaCanvasFloat');
+let mediaCanvas = document.getElementById('mediaCanvas');
 
+let mcfCtx = mediaCanvas.getContext('2d')
+let mediaCtx = mediaCanvas.getContext('2d');
 var vcCTX = videoCanvas.getContext('2d');
 let ctx = drawCanvas.getContext('2d');
 let ctxH = eraseCanvas.getContext('2d');
@@ -22,17 +25,18 @@ let offsetInput = document.getElementById('offsetDuration');
 let volumeSlider = document.getElementById('volumeSlider');
 
 let showEraser = false;
+let ctxVal = false;
 
 let coordinatesDisplay = document.getElementById('coordinates');
 let coordinatesDisplay2 = document.getElementById('coordinates2');
 // the art mode( draw, erase, add text, add media)
 let mode = 'draw';
 // mouse moving position
-let mouseX = 100;
-let mouseY = 100;
+let mouseX = video.width / 2;
+let mouseY = video.height / 2;
 // mosue down position
-let mouseX2 = 100;
-let mouseY2 = 100;
+let mouseX2 = 320//video.width / 2;
+let mouseY2 = 240//video.height / 2;
 
 let textEditor = document.getElementById('TextEditor');
 let textCanvas = document.getElementById('textCanvas');
@@ -44,14 +48,22 @@ let fontSizeSelector = document.getElementById('fontSize');
 let textAngleSlider = document.getElementById('textAngleSlider');
 let textAngleValue = document.getElementById('textAngleValue');
 
-let mediaCanvas = document.getElementById('mediaCanvas');
-let mediaCtx = mediaCanvas.getContext('2d');
+
 let mediaLink = '';
 var base_video = document.getElementById('base_video');
 
 let size = 1;
 let angle = 0;
+let time = 0;
 
+var audioLibrary = []
+var imageLibrary = []
+var videoLibrary = []
+
+var interval = setInterval(() => {
+    time++;
+    if (time > 99) time = 0;
+}, 50);
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then((stream) => {
@@ -344,13 +356,6 @@ function finalizeText(e) {
         let x = e ? e.offsetX : textCanvas.width / 2;
         let y = e ? e.offsetY : textCanvas.height / 2;
 
-        // ctx.save();
-        // ctx.translate(x, y);
-        // ctx.rotate(angle * Math.PI / 180);
-        // ctx.translate(-x, -y);
-        // textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        // ctx.restore();
-
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(angle * Math.PI / 180);
@@ -366,28 +371,22 @@ function finalizeText(e) {
 
 mediaCanvas.addEventListener('mousemove', (e) => {
     if (mode === 'addMedia') {
-        renderImagePreview(e);
+        // renderImagePreview();
         // Display the mouse coordinates.
         coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
         mouseX = e.offsetX;
         mouseY = e.offsetY;
     }
 });
+
 let moveMedia = false;
+
 // Click the canvas to move the Image to the mouse position
 mediaCanvas.addEventListener('mousedown', (e) => {
     if (mode === 'addMedia') {
-        // renderImagePreview(e);
-        // Display the mouse coordinates.
-        // coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
-        // mediaCanvas.addEventListener('mousemove', function moveMedia(e) {
-        // setTimeout(() => {
-        //     mouseX2 = e.offsetX;
-        //     mouseY2 = e.offsetY;
-        // }, 30);
+
         console.log("Mousedown");
         moveMedia = true;
-        // var moveMediaInterval = setInterval(moveDMedia, 100);
 
         mediaCanvas.addEventListener('mousemove', (e) => {
             if (moveMedia)
@@ -397,7 +396,7 @@ mediaCanvas.addEventListener('mousedown', (e) => {
         function moveDMedia(e) {
             mouseX2 = e.offsetX;
             mouseY2 = e.offsetY;
-            renderImagePreview(e);
+            // renderImagePreview();
             coordinatesDisplay2.innerText = `${e.offsetX}, ${e.offsetY}`;
             console.log("Moveing Media");
         }
@@ -406,79 +405,109 @@ mediaCanvas.addEventListener('mousedown', (e) => {
             moveMedia = false;
             console.log("Mouseup");
         });
-        // });
 
     }
 });
 
 let doneBtn = document.getElementById('doneBtn');
-
 doneBtn.addEventListener('click', finalizeImage);
+let sendBtn = document.getElementById('sendBtn');
+sendBtn.addEventListener('click', () => {
+    ctxVal = !ctxVal
+    if (ctxVal)
+        sendBtn.style.background = "lightblue";
+    else
+        sendBtn.style.background = "lightgrey";
+});
 
+function renderImagePreview() {
+    if (mediaLink != "") {
+        // draw the media object
+        if (mediaType === 'image') {
+            mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
+            // textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+            // textCtx.fillStyle = colorPicker.value;
+            // let x = e ? e.offsetX : mediaCanvas.width / 2;
+            // let y = e ? e.offsetY : mediaCanvas.height / 2;
 
-function renderImagePreview(e) {
-    if (mediaType === 'image') {
-        mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-        // textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-        // textCtx.fillStyle = colorPicker.value;
-        let x = e ? e.offsetX : mediaCanvas.width / 2;
-        let y = e ? e.offsetY : mediaCanvas.height / 2;
+            base_image = new Image();
+            base_image.src = './media/image/' + mediaLink;
+            let sSize = sizeSlider.value;
+            let angle = angleSlider.value;
+            let width = sSize / 100 * base_image.width;
+            let height = sSize / 100 * base_image.height;
 
-        base_image = new Image();
-        base_image.src = './media/image/' + mediaLink;
-        let sSize = sizeSlider.value;
-        let angle = angleSlider.value;
-        let width = sSize / 100 * base_image.width;
-        let height = sSize / 100 * base_image.height;
-        // mediaCtx.rotate(angle * Math.PI / 180);
-        mediaCtx.save();
-        mediaCtx.translate(mouseX2, mouseY2);
-        mediaCtx.rotate(angle * Math.PI / 180);
-        mediaCtx.translate(-mouseX2, -mouseY2);
-        mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-        // mediaCtx.rotate(-angle * Math.PI / 180);
-        mediaCtx.restore();
-    }
-    if (mediaType === 'audio') {
-        mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-        // textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-        // textCtx.fillStyle = colorPicker.value;
-        let x = e ? e.offsetX : mediaCanvas.width / 2;
-        let y = e ? e.offsetY : mediaCanvas.height / 2;
+            // translate and rotate the canvas so that the image is centered
+            mediaCtx.save();
+            mediaCtx.translate(mouseX2, mouseY2);
+            mediaCtx.rotate(angle * Math.PI / 180);
+            mediaCtx.translate(-mouseX2, -mouseY2);
 
-        base_image = new Image();
-        base_image.src = './media/image/soundIcon.png';
-        let sSize = sizeSlider.value;
-        let angle = angleSlider.value;
-        let width = sSize / 100 * base_image.width;
-        let height = sSize / 100 * base_image.height;
-        // mediaCtx.rotate(angle * Math.PI / 180);
-        mediaCtx.save();
-        mediaCtx.translate(mouseX2, mouseY2);
-        mediaCtx.rotate(angle * Math.PI / 180);
-        mediaCtx.translate(-mouseX2, -mouseY2);
-        mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-        // mediaCtx.rotate(-angle * Math.PI / 180);
-        mediaCtx.restore();
-    }
-    if (mediaType === 'video') {
+            // draw the "edit image" background behind the media object
+            if (Math.floor(time / 10) % 2) mediaCtx.strokeStyle = '#ff0000';
+            else mediaCtx.strokeStyle = '#000000';
+            mediaCtx.globalAlpha = .4;
+            mediaCtx.shadowColor = "#d53";
+            mediaCtx.shadowBlur = 20;
+            mediaCtx.lineJoin = "round";
+            mediaCtx.lineWidth = 5;
+            // mediaCtx.strokeStyle = "#38f";
+            mediaCtx.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
+            mediaCtx.globalAlpha = 1;
 
-        var base_video = document.getElementById('base_video');
+            // draw the image
+            mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            mediaCtx.restore();
+        }
+        if (mediaType === 'audio') {
+            mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
+            base_image = new Image();
+            base_image.src = './media/image/soundIcon.png';
+            let sSize = sizeSlider.value;
+            let angle = angleSlider.value;
+            let width = sSize / 100 * base_image.width;
+            let height = sSize / 100 * base_image.height;
+            // mediaCtx.rotate(angle * Math.PI / 180);
+            mediaCtx.save();
+            mediaCtx.translate(mouseX2, mouseY2);
+            mediaCtx.rotate(angle * Math.PI / 180);
+            mediaCtx.translate(-mouseX2, -mouseY2);
 
-        base_video.addEventListener("ended", () => {
-            // if (base_video.playing) { // checks if element is playing right now
-            //     // Do anything you want to
-            //     if (base_video.ended)
-            //         base_video.play();
-            // } else {
-            //     base_video.play();
-            // }
-            // let loop = document.getElementById('medialoop').checked
-            // if (loop) {
-            base_video.play();
-            // console.log("replaying video")
-            // }
-        });
+            // draw the "edit image" background behind the media object
+            if (Math.floor(time / 10) % 2) mediaCtx.strokeStyle = '#ff0000';
+            else mediaCtx.strokeStyle = '#000000';
+            mediaCtx.globalAlpha = .4;
+            mediaCtx.shadowColor = "#d53";
+            mediaCtx.shadowBlur = 20;
+            mediaCtx.lineJoin = "round";
+            mediaCtx.lineWidth = 5;
+            // mediaCtx.strokeStyle = "#38f";
+            mediaCtx.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 7, height + 7);
+            mediaCtx.globalAlpha = 1;
+            mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+
+            // mediaCtx.rotate(-angle * Math.PI / 180);
+            mediaCtx.restore();
+        }
+        if (mediaType === 'video') {
+
+            var base_video = document.getElementById('base_video');
+
+            base_video.addEventListener("ended", () => {
+                // if (base_video.playing) { // checks if element is playing right now
+                //     // Do anything you want to
+                //     if (base_video.ended)
+                //         base_video.play();
+                // } else {
+                //     base_video.play();
+                // }
+                // let loop = document.getElementById('medialoop').checked
+                // if (loop) {
+                base_video.play();
+                // console.log("replaying video")
+                // }
+            });
+        }
     }
 }
 
@@ -498,14 +527,30 @@ function drawVideo() {
                 mediaCtx.translate(mouseX2, mouseY2);
                 mediaCtx.rotate(angle * Math.PI / 180);
                 mediaCtx.translate(-mouseX2, -mouseY2);
-                // mediaCtx.drawImage($this, mouseX, mouseY, width, height);
+
+                // draw the "edit image" background behind the media object
+                if (Math.floor(time / 10) % 2)
+                    mediaCtx.fillStyle = '#ff0000';
+                else
+                    mediaCtx.fillStyle = '#000000';
+
+                mediaCtx.globalAlpha = .4;
+                mediaCtx.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
+                mediaCtx.fill();
+                mediaCtx.globalAlpha = 1;
+
                 mediaCtx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
                 mediaCtx.restore();
-                setTimeout(loop, 1000 / 30); // drawing at 30fps
+                if (mediaType === 'video')
+                    setTimeout(loop, 1000 / 30); // drawing at 30fps
             }
         })();
     }, 0);
 }
+//update media canvas preview
+setInterval(() => {
+    renderImagePreview();
+}, 1000 / 30)
 
 function finalizeImage(e) {
     if (mode === 'addMedia') {
@@ -521,24 +566,27 @@ function finalizeImage(e) {
             let angle = angleSlider.value;
             let width = sSize / 100 * base_image.width;
             let height = sSize / 100 * base_image.height;
-            // ctx.rotate(angle * Math.PI / 180);
-            // ctx.drawImage(base_image, x - width / 2, y - height / 2, width, height);
-            // mediaCtx.rotate(angle * Math.PI / 180);
+
+            // // pick the right canvas to draw on
+            // let ctx
+            // if (ctxVal == false)
+            //     ctx = drawCanvas.getContext("2d");
+            // else
+            //     ctx = mediaCanvasFloat.getContext("2d");
+
             ctx.save();
             ctx.translate(mouseX2, mouseY2);
             ctx.rotate(angle * Math.PI / 180);
             ctx.translate(-mouseX2, -mouseY2);
             ctx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-            // mediaCtx.rotate(-angle * Math.PI / 180);
             ctx.restore();
 
-            let xx = document.getElementById('mediaDisplay')
+            clearMediaPreviewDiv();
 
-            while (xx.hasChildNodes()) {
-                xx.removeChild(xx.firstChild);
-            }
-            mediaLink = "";
+            // clear the drawn image on the canvas after timeVal seconds
+            // clearMediaAfterTimeout(ctx, width, height);
         }
+
         if (mediaType === 'audio') {
             mediaCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             base_image = new Image();
@@ -549,22 +597,50 @@ function finalizeImage(e) {
             let width = sSize / 100 * 128;
             let height = sSize / 100 * 128;
 
-            ctx.save();
-            ctx.translate(mouseX2, mouseY2);
-            ctx.rotate(angle * Math.PI / 180);
-            ctx.translate(-mouseX2, -mouseY2);
-            ctx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            //Draw sound icon
+            mcfCtx.save();
+            mcfCtx.translate(mouseX2, mouseY2);
+            mcfCtx.rotate(angle * Math.PI / 180);
+            mcfCtx.translate(-mouseX2, -mouseY2);
+            mcfCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             font = `12px ${fontSelector.value}`;
-            ctx.fillText(mediaLink, e.offsetX, e.offsetY);
-            ctx.restore();
+            mcfCtx.fillText(mediaLink, e.offsetX, e.offsetY);
+            mcfCtx.restore();
+
             var sound = new Audio();
             sound.src = './media/audio/' + mediaLink;
             sound.play()
-            sound.addEventListener('play', function () {
 
-            })
+            clearMediaPreviewDiv();
+            // clear the drawn sound icon off the canvas after timeVal seconds
+            // clearMediaAfterTimeout(mediaCtx, width, height)
+
         }
     }
+}
+
+function clearMediaAfterTimeout(ctx, width, height) {
+    var timeValue = document.getElementById('timeValue').value;
+    let val = parseInt(timeValue);
+    if (val == "") {
+        val = 5;
+    }
+    setTimeout(function () {
+        console.log('clearMediaAfterTimeout: ', val);
+        ctx.clearRect(mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+    }, val * 1000)
+}
+
+function clearMediaPreviewDiv() {
+    // Clear all the image in the display div
+    // let mediaDisplay = document.getElementById('mediaDisplay');
+    // while (mediaDisplay.hasChildNodes()) {
+    //     mediaDisplay.removeChild(mediaDisplay.firstChild);
+    // }
+    document.querySelectorAll('#list').forEach(item => {
+        item.style.background = '';
+    });
+    mediaLink = "";
 }
 
 // Dyanamic Labels, updates the slider's text in real-time
@@ -589,13 +665,13 @@ angleValue.addEventListener('input', () => {
     renderImagePreview();
 });
 
-let volumeValue = document.getElementById('volumeValue');
-volumeSlider.addEventListener('input', () => {
-    volumeValue.value = volumeSlider.value;
-});
-volumeValue.addEventListener('input', () => {
-    volumeSlider.value = volumeValue.value;
-});
+// let volumeValue = document.getElementById('volumeValue');
+// volumeSlider.addEventListener('input', () => {
+//     volumeValue.value = volumeSlider.value;
+// });
+// volumeValue.addEventListener('input', () => {
+//     volumeSlider.value = volumeValue.value;
+// });
 
 let mediaStartSlider = document.getElementById('mediaStart');
 let mediaStartValue = document.getElementById('mediaStartValue');
@@ -627,28 +703,33 @@ const audioVideoSettings = document.getElementById('audioVideoSettings');
 const imageBtn = document.getElementById('imageBtn');
 const audioBtn = document.getElementById('audioBtn');
 const videoBtn = document.getElementById('videoBtn');
-let mediaSearchText = document.getElementById('mediaSearchType').innerText;
+let mediaSearchText = document.getElementById('mediaSearchType');
 
 imageBtn.addEventListener('click', () => {
     mediaType = 'image';
-    mediaSearchText = 'Image';
+    mediaSearchText.innerText = 'Image';
     imageSettings.style.display = 'block';
     audioVideoSettings.style.display = 'none';
+    document.getElementById('timeDiv').style.display = 'block'
     search4Media();
 });
 
 videoBtn.addEventListener('click', () => {
     mediaType = 'video';
-    mediaSearchText = 'Video';
+    mediaSearchText.innerText = 'Video';
     imageSettings.style.display = 'block';
+    document.getElementById('base_audio').style.display = 'none'
     audioVideoSettings.style.display = 'block';
+    document.getElementById('timeDiv').style.display = 'none'
     search4Media();
 });
 
 audioBtn.addEventListener('click', () => {
     mediaType = 'audio';
-    mediaSearchText = 'Audio';
+    mediaSearchText.innerText = 'Audio';
     audioVideoSettings.style.display = 'block';
+    document.getElementById('base_audio').style.display = 'block'
+    document.getElementById('timeDiv').style.display = 'none'
     search4Media();
 });
 
@@ -684,10 +765,13 @@ let mediaType = 'image';
 
 function search4Media() {
     if (searchBar.value.length > 2) {
-        // const files = fs.readdirSync('./media/' + mediaType);
-
+        let files = images;
         if (mediaType == 'image') {
-            files = images;
+            if (libraryMode.checked) {
+                files = imageLibrary;
+            } else {
+                files = images;
+            }
         }
         if (mediaType == 'audio') {
             files = audio;
@@ -695,6 +779,7 @@ function search4Media() {
         if (mediaType == 'video') {
             files = videos;
         }
+
 
         search = searchBar.value;
         search = search.toLowerCase();
@@ -711,42 +796,41 @@ function search4Media() {
         }
 
         console.log("Matching Search Results: ", matches)
-
-        resultList.innerHTML = ''; // Clear existing list
+        // Clear existing list
+        resultList.innerHTML = '';
         matches.forEach(file => {
-
             if (mediaType == 'video') {
-                let listItem = document.createElement('div');
-                // if (file.length > 30) {
-                //     listItem = document.createElement('marquee');
-                // }
-                listItem.id = "list";
-                listItem.clicked = false;
-                listItem.textContent = file;
-                listItem.style.border = '2px solid black';
-                listItem.style.padding = '5px';
-                listItem.style.margin = '3px';
-                listItem.style.background = 'white';
- 
+                let videoPreview = document.createElement('video');
+                videoPreview.id = "list";
+                videoPreview.clicked = false;
 
+                videoPreview.style.borderRadius = '3px';
+                videoPreview.style.padding = '3px';
+                videoPreview.style.margin = '3px';
+                mediaLink = file;
 
-                listItem.addEventListener('click', () => {
+                videoPreview.src = "./media/video/" + mediaLink;
+                videoPreview.height = 64;
+                videoPreview.width = 96;
+                videoPreview.play();
+
+                videoPreview.addEventListener('click', () => {
                     var base_video = document.getElementById('base_video');
 
                     document.querySelectorAll('#list').forEach(item => {
                         item.style.background = 'white';
                     });
 
-                    if (listItem.clicked == true) {
-                        listItem.style.background = 'white';
+                    if (videoPreview.clicked == true) {
+                        videoPreview.style.background = 'white';
                         mediaLink = "";
-                        listItem.clicked = false;
+                        videoPreview.clicked = false;
                         base_video.src = "./media/video/testdummy.mp4";
                     }
                     else {
-                        listItem.style.background = 'lightblue';
+                        videoPreview.style.background = 'lightblue';
                         mediaLink = file;
-                        listItem.clicked = true;
+                        videoPreview.clicked = true;
                         if (mediaType == 'video') {
                             base_video.src = `./media/video/${mediaLink}`;
                             base_video.play();
@@ -758,7 +842,8 @@ function search4Media() {
                     }
 
                 });
-                resultList.appendChild(listItem);
+
+                resultList.appendChild(videoPreview);
             }
 
             if (mediaType == 'audio') {
@@ -774,72 +859,128 @@ function search4Media() {
                 listItem.style.margin = '3px';
                 listItem.style.background = 'white';
                 listItem.addEventListener('click', () => {
-                    var base_video = document.getElementById('base_video');
-
-                    document.querySelectorAll('#list').forEach(item => {
-                        item.style.background = 'white';
-                    });
-
+                    var base_audio = document.getElementById('base_audio');
+                    // var audio = new Audio();
                     if (listItem.clicked == true) {
                         listItem.style.background = 'white';
                         mediaLink = "";
                         listItem.clicked = false;
-                        base_video.src = "./media/video/testdummy.mp4";
+                        // base_audio.src = `./media/audio/${mediaLink}`;
+                        document.querySelectorAll('#list').forEach(item => {
+                            item.style.background = 'white';
+                        });
                     }
                     else {
                         listItem.style.background = 'lightblue';
                         mediaLink = file;
                         listItem.clicked = true;
-                        if (mediaType == 'video') {
-                            base_video.src = `./media/video/${mediaLink}`;
-                            base_video.play();
-                            let width = parseInt(sizeSlider.value) / 100 * 640;
-                            let height = parseInt(sizeSlider.value) / 100 * 480;
-                            console.log("Dimensions: (" + width + "," + height + ")");
-                            drawVideo()
-                        }
+                        base_audio.src = `./media/audio/${mediaLink}`;
+                        base_audio.play();
                     }
-
                 });
+
                 resultList.appendChild(listItem);
             }
 
             if (mediaType == 'image') {
-                let tbkg = document.createElement('div');
-                tbkg.id = "list";
-                tbkg.style.padding = '3px';
-                tbkg.clicked = false;
 
-                let thumbnail = document.createElement('image');
+                mediaLink = file;
+
+                let thumbnail = new Image()
                 thumbnail.src = "./media/image/" + mediaLink;
                 thumbnail.height = 64;
                 thumbnail.width = 64;
-                tbkg.appendChild(thumbnail);
+                thumbnail.id = "list";
+                thumbnail.style.padding = '5px';
+                thumbnail.style.margin = '3px';
+                thumbnail.style.borderRadius = '3px';
+                thumbnail.clicked = false;
 
-                tbkg.addEventListener('click', () => {
-                    if (listItem.clicked == true) {
-                        document.querySelectorAll('#list').forEach(item => {
-                            item.style.background = 'white';
-                        });
-                        tbkg.style.background = 'lightblue';
+                thumbnail.addEventListener('click', () => {
+                    if (libraryMode.value) {
+                        if (removeFromLibrary) {
+                            // Search for the item to remove
+                            const index = imageLibrary.indexOf(file);
+                            // Remove the item
+                            imageLibrary.splice(index, 1);
+                            // delete the item from the screen/DOM
+                            thumbnail.remove();
+                        }
+                    }
+                    if (thumbnail.clicked == true) {
+                        thumbnail.style.background = '';
                         mediaLink = "";
-                        tbkg.clicked = false;
+                        thumbnail.clicked = false;
                     }
                     else {
-                        listItem.style.background = 'lightblue';
+                        document.querySelectorAll('#list').forEach(item => {
+                            item.style.background = '';
+                        });
+                        thumbnail.style.background = 'lightblue';
                         mediaLink = file;
-                        tbkg.clicked = true;
+                        thumbnail.clicked = true;
                     }
                 });
 
-                resultList.appendChild(tbkg);
+                thumbnail.addEventListener('dblclick', () => {
+                    var searchMode = document.getElementById('search').value
+                    if (searchMode) {
+                        thumbnail.style.background = 'lightgreen';
+                        mediaLink = file;
+                        thumbnail.clicked = true;
+                        // if the file has not been loaded in to the library yet, then add it to the list
+                        // var result = imageLibrary.find(item => item == file);
+                        // if (result != null)
+                        //     imageLibrary.push(file)
+                        // 
+                        imageLibrary.push(file)
+                        var result = removeDuplicates(imageLibrary);
+                        console.log("Library: " + result)
+                    }
+                });
+
+                // add the item to the list in the media display div
+                resultList.appendChild(thumbnail);
             }
-
-
-
+            // if the media link is not empty, render the linked media to the canvas
+            if (!(mediaLink == "")) {
+                renderImagePreview()
+            }
         });
     }
 }
+
+
+function removeDuplicates(arr) {
+    return arr.filter((item,
+        index) => arr.indexOf(item) === index);;
+}
+// 
+
+var removeFromLibrary = false;
+var removeButton = document.getElementById('removeButton');
+removeButton.addEventListener('click', () => {
+    removeFromLibrary = !removeFromLibrary;
+    if (removeFromLibrary)
+        removeButton.style.background = "red"
+    else
+        removeButton.style.background = ""
+    console.log(removeFromLibrary)
+});
+
+var searchMode = document.getElementById('search')
+searchMode.addEventListener('click', () => {
+    removeButton.style.display = 'none';
+    search4Media();
+});
+
+var libraryMode = document.getElementById('library')
+libraryMode.addEventListener('click', () => {
+    removeButton.style.display = 'block';
+    mediaList.innerHTML = '';
+    search4Media();
+});
+
 
 // Execute a function when the user presses a key on the keyboard
 searchBar.addEventListener("keypress", function (event) {

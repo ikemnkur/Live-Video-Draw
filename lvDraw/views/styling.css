@@ -10,7 +10,7 @@
 
 .searchIcon {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 2px;
 }
 
 .mediaTab {
@@ -34,8 +34,9 @@
     right: 10px;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
+    border: #005658 5px solid;
     border-radius: 5px;
-    width: 320px;
+    width: 340px;
 }
 
 #mediaDisplay {
@@ -75,10 +76,26 @@ label {
 
 #mediaDisplay {
     height: 200px;
-    background-color: lightgrey;
+    background-color: white;
 }
 
-textarea{
+textarea {
     height: 16px;
     width: 48px;
+}
+
+img {
+    overflow-clip-margin: content-box;
+    overflow: clip;
+}
+
+input {
+    padding: 3px;
+    margin: 2px;
+}
+
+#searchBar >
+button {
+    padding: 3px;
+    margin: 3px;
 }

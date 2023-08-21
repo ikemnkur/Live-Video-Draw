@@ -32,12 +32,12 @@
     <video id="video" autoplay playsinline style="display: none;"></video>
 
     <canvas id="videoCanvas"></canvas>
-    <canvas id="mediaCanvasFloat" style="display: none;"></canvas>
+    <canvas id="mediaCanvasFloat"></canvas>
     <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
     <canvas id="eraseCanvas" style="display: none;"></canvas>
     <canvas id="textCanvas" style="display: none;"></canvas>
     <canvas id="mediaCanvas" style="display: none;"></canvas>
-    
+
 
     <div id="toolbox">
         <button id="clear">Clear</button>
@@ -130,21 +130,40 @@
                 <button class="mediaTab" data-tab="video" id="videoBtn">Video</button>
             </div>
 
-            <div>
+            <div id="searchBarDiv" style="display: flex; align-items: center;">
                 <span class="searchIcon">&#128269;</span>
                 <input id="searchBar" type="text" placeholder="Search...">
-                <button id="goButton" class="searchbtn">Go</button>
+                <button id="goButton" class="searchbtn" style="padding: 3px;
+                margin: 3px;">Go</button>
+                <button id="removeButton" class="searchbtn" style="display: none; padding: 3px;
+                margin: 3px;">Delete</button>
             </div>
 
             <!-- <div > -->
-                
-                    <div id="mediaDisplay">
-                        <div id="mediaList">
 
-                        </div>
-                    </div>
-                
+            <div id="mediaDisplay">
+                <div id="mediaList">
+
+                </div>
+            </div>
+
             <!-- </div> -->
+            <div class="mediaSettings" id="audioVideoSettings" style="display: none;">
+                <audio id="base_audio" controls>
+                    <source src="./media/audio/Android-meme-djlunatique.com.mp3">
+                    <!-- <source src="./media/audio/" type="audio/mpeg"> -->
+                    Your browser does not support the audio element.
+                </audio>
+                <div style="display: none;">
+                    <label>Volume:</label> <input id="volumeSlider" type="range" min="0" max="100" value="50"><textarea
+                        id="volumeValue">50</textarea>dB%<br>
+                </div>
+                <label>Start:</label> <input id="mediaStart" type="range" min="0" max="100" value="5"
+                    placeholder="start time"><text id="mediaStartValue">0</text>%<br>
+                <label>Stop:</label> <input id="mediaStop" type="range" min="0" max="100" value="95"
+                    placeholder="end time"><text id="mediaStopValue">0</text> %<br>
+                <!-- <input type="checkbox" id="medialoop"> <label for="loop" checked>Loop</label> -->
+            </div>
 
             <div class="mediaSettings" id="imageSettings">
                 <div style="display: flex;">
@@ -152,24 +171,22 @@
                     <input id="sizeSlider" type="range" min="10" max="100" value="25">
                     <textarea id="sizeValue">25</textarea>%
                 </div>
-                <br>
                 <div style="display: flex;">
                     <label>Angle:</label>
                     <input id="angleSlider" type="range" min="-180" max="180" value="0">
                     <textarea id="angleValue">0</textarea>°
                 </div>
-
+                <div id="timeDiv" style="display: flex;">
+                    <label>Time: </label>
+                    <input id="timeValue"></input> Seconds
+                </div>
             </div>
 
-            <div class="mediaSettings" id="audioVideoSettings" style="display: none;">
-                <label>Volume:</label> <input id="volumeSlider" type="range" min="0" max="100" value="50"><textarea
-                    id="volumeValue">50</textarea>dB%<br>
-                <label>Start:</label> <input id="mediaStart" type="range" min="0" max="100" value="5" placeholder="start time"><text id="mediaStartValue">0</text>%<br>
-                <label>Stop:</label> <input id="mediaStop" type="range" min="0" max="100" value="95" placeholder="end time"><text id="mediaStopValue">0</text> %<br>
-                <!-- <input type="checkbox" id="medialoop"> <label for="loop" checked>Loop</label> -->
+            <div>
+                <button id="doneBtn">Done</button>
+                <button id="libraryBtn">Add to Library</button>
+                <button id="sendBtn">Send</button>
             </div>
-
-            <button id="doneBtn">Done</button>
         </div>
     </div>
 
@@ -182,6 +199,11 @@
     </script>
     <div id="base_video_div">
         <video id="base_video"></video>
+        <!-- <audio id="base_audio" controls>
+            <source src="./media/audio/Android-meme-djlunatique.com.mp3">
+             <source src="./media/audio/" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio> -->
         <!-- <video id="base_video" src="./media/video/testdummy.mp4"></video> -->
     </div>
 </body>
