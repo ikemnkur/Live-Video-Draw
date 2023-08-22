@@ -766,9 +766,6 @@ let mediaType = 'image';
 function search4Media() {
     if (searchBar.value.length > 2 || searchBar.value == "") {
         let files;
-        // if (searchBar.value == "") {
-
-        // }
         
         if (mediaType == 'image') {
             if (libraryMode.checked) {
