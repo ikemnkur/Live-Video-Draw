@@ -764,8 +764,12 @@ const resultList = document.getElementById('mediaList');
 let mediaType = 'image';
 
 function search4Media() {
-    if (searchBar.value.length > 2) {
-        let files = images;
+    if (searchBar.value.length > 2 || searchBar.value == "") {
+        let files;
+        // if (searchBar.value == "") {
+
+        // }
+        
         if (mediaType == 'image') {
             if (libraryMode.checked) {
                 files = imageLibrary;
@@ -774,10 +778,18 @@ function search4Media() {
             }
         }
         if (mediaType == 'audio') {
-            files = audio;
+            if (libraryMode.checked) {
+                files = audioLibrary;
+            } else { 
+                files = audio; 
+            }
         }
         if (mediaType == 'video') {
-            files = videos;
+            if (libraryMode.checked) {
+                files = audioLibrary;
+            } else { 
+                files = videos;
+            }
         }
 
 
@@ -794,6 +806,8 @@ function search4Media() {
                 // x[i].style.display = "";
             }
         }
+
+
 
         console.log("Matching Search Results: ", matches)
         // Clear existing list
@@ -847,6 +861,7 @@ function search4Media() {
             }
 
             if (mediaType == 'audio') {
+
                 let listItem = document.createElement('div');
                 if (file.length > 30) {
                     listItem = document.createElement('marquee');
@@ -859,6 +874,18 @@ function search4Media() {
                 listItem.style.margin = '3px';
                 listItem.style.background = 'white';
                 listItem.addEventListener('click', () => {
+
+                    if (libraryMode.checked) {
+                        if (removeFromLibrary) {
+                            // Search for the item to remove
+                            const index = audioLibrary.indexOf(file);
+                            // Remove the item
+                            audioLibrary.splice(index, 1);
+                            // delete the item from the screen/DOM
+                            listItem.remove();
+                        }
+                    }
+
                     var base_audio = document.getElementById('base_audio');
                     // var audio = new Audio();
                     if (listItem.clicked == true) {
@@ -876,6 +903,18 @@ function search4Media() {
                         listItem.clicked = true;
                         base_audio.src = `./media/audio/${mediaLink}`;
                         base_audio.play();
+                    }
+                });
+
+                listItem.addEventListener('dblclick', () => {
+                    var searchMode = document.getElementById('search')
+                    if (searchMode.checked) {
+                        listItem.style.background = 'lightgreen';
+                        mediaLink = file;
+                        listItem.clicked = true;
+                        audioLibrary.push(file)
+                        var result = removeDuplicates(audioLibrary);
+                        console.log("Library: " + result)
                     }
                 });
 
@@ -897,7 +936,7 @@ function search4Media() {
                 thumbnail.clicked = false;
 
                 thumbnail.addEventListener('click', () => {
-                    if (libraryMode.value) {
+                    if (libraryMode.checked) {
                         if (removeFromLibrary) {
                             // Search for the item to remove
                             const index = imageLibrary.indexOf(file);
@@ -923,8 +962,8 @@ function search4Media() {
                 });
 
                 thumbnail.addEventListener('dblclick', () => {
-                    var searchMode = document.getElementById('search').value
-                    if (searchMode) {
+                    var searchMode = document.getElementById('search')
+                    if (searchMode.checked) {
                         thumbnail.style.background = 'lightgreen';
                         mediaLink = file;
                         thumbnail.clicked = true;
