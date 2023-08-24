@@ -783,12 +783,11 @@ function search4Media() {
         }
         if (mediaType == 'video') {
             if (libraryMode.checked) {
-                files = audioLibrary;
+                files = videoLibrary;
             } else { 
                 files = videos;
             }
         }
-
 
         search = searchBar.value;
         search = search.toLowerCase();
@@ -803,8 +802,6 @@ function search4Media() {
                 // x[i].style.display = "";
             }
         }
-
-
 
         console.log("Matching Search Results: ", matches)
         // Clear existing list
@@ -824,6 +821,7 @@ function search4Media() {
                 videoPreview.height = 64;
                 videoPreview.width = 96;
                 videoPreview.play();
+                videoPreview.volume = 0;
 
                 videoPreview.addEventListener('click', () => {
                     var base_video = document.getElementById('base_video');
@@ -831,6 +829,17 @@ function search4Media() {
                     document.querySelectorAll('#list').forEach(item => {
                         item.style.background = 'white';
                     });
+
+                    if (libraryMode.checked) {
+                        if (removeFromLibrary) {
+                            // Search for the item to remove
+                            const index = videoPreview.indexOf(file);
+                            // Remove the item
+                            videoPreview.splice(index, 1);
+                            // delete the item from the screen/DOM
+                            videoPreview.remove();
+                        }
+                    }
 
                     if (videoPreview.clicked == true) {
                         videoPreview.style.background = 'white';
@@ -852,6 +861,18 @@ function search4Media() {
                         }
                     }
 
+                });
+
+                videoPreview.addEventListener('dblclick', () => {
+                    var searchMode = document.getElementById('search')
+                    if (searchMode.checked) {
+                        videoPreview.style.background = 'lightgreen';
+                        mediaLink = file;
+                        videoPreview.clicked = true;
+                        videoLibrary.push(file)
+                        var result = removeDuplicates(videoLibrary);
+                        console.log("Library: " + result)
+                    }
                 });
 
                 resultList.appendChild(videoPreview);
@@ -964,11 +985,6 @@ function search4Media() {
                         thumbnail.style.background = 'lightgreen';
                         mediaLink = file;
                         thumbnail.clicked = true;
-                        // if the file has not been loaded in to the library yet, then add it to the list
-                        // var result = imageLibrary.find(item => item == file);
-                        // if (result != null)
-                        //     imageLibrary.push(file)
-                        // 
                         imageLibrary.push(file)
                         var result = removeDuplicates(imageLibrary);
                         console.log("Library: " + result)
