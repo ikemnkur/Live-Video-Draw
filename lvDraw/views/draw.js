@@ -11,7 +11,7 @@ let mediaCtx = mediaCanvas.getContext('2d');
 var vcCTX = videoCanvas.getContext('2d');
 let ctx = drawCanvas.getContext('2d');
 let ctxH = eraseCanvas.getContext('2d');
-let ctxMCF = eraseCanvas.getContext('2d');
+let ctxMCF = mediaCanvasFloat.getContext('2d');
 
 let colorPicker = document.getElementById('color-picker');
 let strokeSizeSlider = document.getElementById('stroke-size');
@@ -19,6 +19,8 @@ let clearButton = document.getElementById('clear');
 let modeSelect = document.getElementById('mode');
 
 let angleSlider = document.getElementById('angleSlider');
+let sizeHSlider = document.getElementById('sizeHSlider');
+let sizeVSlider = document.getElementById('sizeVSlider');
 let sizeSlider = document.getElementById('sizeSlider');
 let durationSlider = document.getElementById('durationSlider');
 let offsetInput = document.getElementById('offsetDuration');
@@ -50,7 +52,7 @@ let textAngleValue = document.getElementById('textAngleValue');
 
 
 let mediaLink = '';
-var base_video = document.getElementById('base_video');
+let base_video = document.getElementById('base_video');
 
 let size = 1;
 let angle = 0;
@@ -79,6 +81,8 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
             videoCanvas.height = video.videoHeight;
             mediaCanvas.width = video.videoWidth;
             mediaCanvas.height = video.videoHeight;
+            mediaCanvasFloat.width = video.videoWidth;
+            mediaCanvasFloat.height = video.videoHeight;
         });
         video.addEventListener('play', function () {
             var $this = this; //cache
@@ -242,7 +246,7 @@ modeSelect.addEventListener('change', (e) => {
 
 });
 
-// Draw the eraser square
+// Draw the eraser square 
 
 function renderEraserSquare(x, y) {
     // if (showEraser == true) {
@@ -482,7 +486,7 @@ function renderImagePreview() {
             mediaCtx.lineJoin = "round";
             mediaCtx.lineWidth = 5;
             // mediaCtx.strokeStyle = "#38f";
-            mediaCtx.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 7, height + 7);
+            mediaCtx.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 14, height + 14);
             mediaCtx.globalAlpha = 1;
             mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
 
@@ -491,42 +495,43 @@ function renderImagePreview() {
         }
         if (mediaType === 'video') {
 
-            var base_video = document.getElementById('base_video');
 
-            base_video.addEventListener("ended", () => {
-                // if (base_video.playing) { // checks if element is playing right now
-                //     // Do anything you want to
-                //     if (base_video.ended)
-                //         base_video.play();
-                // } else {
-                //     base_video.play();
-                // }
-                // let loop = document.getElementById('medialoop').checked
-                // if (loop) {
-                base_video.play();
-                // console.log("replaying video")
-                // }
-            });
+            // base_video.addEventListener("ended", () => {
+            //     // if (base_video.playing) { // checks if element is playing right now
+            //     //     // Do anything you want to
+            //     //     if (base_video.ended)
+            //     //         base_video.play();
+            //     // } else {
+            //     //     base_video.play();
+            //     // }
+            //     // let loop = document.getElementById('medialoop').checked
+            //     // if (loop) {
+            //     base_video.play();
+            //     // console.log("replaying video")
+            //     // }
+            // });
+            // base_video.play();
+            // drawVideo();
         }
     }
 }
 
-function drawVideo() {
-    var base_video = document.getElementById('base_video');
+function drawVideo(ctx) {
     base_video.addEventListener('play', function () {
         var $this = this; //cache
+
         (function loop() {
             if (!$this.paused && !$this.ended) {
                 angle = angleSlider.value
                 // mediaCanvas.drawImage($this, 0, 0);
-                let width = sizeSlider.value / 100 * 640;
-                let height = sizeSlider.value / 100 * 480;
-                mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
+                let width = sizeHSlider.value / 50 * 320;
+                let height = sizeVSlider.value / 50 * 240;
+                ctx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
                 // mediaCtx.drawImage($this, 0, 0, 120, 80);
-                mediaCtx.save();
-                mediaCtx.translate(mouseX2, mouseY2);
-                mediaCtx.rotate(angle * Math.PI / 180);
-                mediaCtx.translate(-mouseX2, -mouseY2);
+                ctx.save();
+                ctx.translate(mouseX2, mouseY2);
+                ctx.rotate(angle * Math.PI / 180);
+                ctx.translate(-mouseX2, -mouseY2);
 
                 // draw the "edit image" background behind the media object
                 if (Math.floor(time / 10) % 2)
@@ -534,13 +539,13 @@ function drawVideo() {
                 else
                     mediaCtx.fillStyle = '#000000';
 
-                mediaCtx.globalAlpha = .4;
-                mediaCtx.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
-                mediaCtx.fill();
-                mediaCtx.globalAlpha = 1;
+                ctx.globalAlpha = .4;
+                ctx.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
+                ctx.fill();
+                ctx.globalAlpha = 1;
 
-                mediaCtx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-                mediaCtx.restore();
+                ctx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+                ctx.restore();
                 if (mediaType === 'video')
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
             }
@@ -562,6 +567,7 @@ function finalizeImage(e) {
             // let x = e ? e.offsetX : mediaCanvas.width / 2;
             // let y = e ? e.offsetY : mediaCanvas.height / 2;
 
+           
             let sSize = sizeSlider.value;
             let angle = angleSlider.value;
             let width = sSize / 100 * base_image.width;
@@ -579,6 +585,8 @@ function finalizeImage(e) {
             ctx.rotate(angle * Math.PI / 180);
             ctx.translate(-mouseX2, -mouseY2);
             ctx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            ctx = `12px ${fontSelector.value}`;
+            ctx.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
             ctx.restore();
 
             clearMediaPreviewDiv();
@@ -592,10 +600,11 @@ function finalizeImage(e) {
             base_image = new Image();
             base_image.src = './media/image/soundIcon.png';
 
-            let sSize = sizeSlider.value;
+            let VSize = sizeVSlider.value;
+            let HSize = sizeHSlider.value;
             let angle = angleSlider.value;
-            let width = sSize / 100 * 128;
-            let height = sSize / 100 * 128;
+            let width = HSize / 100 * 128;
+            let height = VSize / 100 * 128;
 
             //Draw sound icon
             mcfCtx.save();
@@ -604,7 +613,7 @@ function finalizeImage(e) {
             mcfCtx.translate(-mouseX2, -mouseY2);
             mcfCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             font = `12px ${fontSelector.value}`;
-            mcfCtx.fillText(mediaLink, e.offsetX, e.offsetY);
+            ctx.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
             mcfCtx.restore();
 
             var sound = new Audio();
@@ -612,10 +621,20 @@ function finalizeImage(e) {
             sound.play()
 
             clearMediaPreviewDiv();
-            // clear the drawn sound icon off the canvas after timeVal seconds
-            // clearMediaAfterTimeout(mediaCtx, width, height)
-
         }
+
+        if (mediaType == 'video') {
+            // mediaCanvasFloat.dis
+
+            let drawPermVideo = setInterval(() => {
+                drawVideo(ctxMCF)
+            }, 1000/30);
+
+            setTimeout(() => {
+                clearInterval(drawPermVideo);
+            }, base_video.duration);
+        }
+
     }
 }
 
@@ -633,10 +652,6 @@ function clearMediaAfterTimeout(ctx, width, height) {
 
 function clearMediaPreviewDiv() {
     // Clear all the image in the display div
-    // let mediaDisplay = document.getElementById('mediaDisplay');
-    // while (mediaDisplay.hasChildNodes()) {
-    //     mediaDisplay.removeChild(mediaDisplay.firstChild);
-    // }
     document.querySelectorAll('#list').forEach(item => {
         item.style.background = '';
     });
@@ -644,14 +659,25 @@ function clearMediaPreviewDiv() {
 }
 
 // Dyanamic Labels, updates the slider's text in real-time
-
-let sizeValue = document.getElementById('sizeValue');
-sizeSlider.addEventListener('input', () => {
-    sizeValue.value = sizeSlider.value;
+// Vertical Size Slider
+let sizeHValue = document.getElementById('sizeHValue');
+sizeHSlider.addEventListener('input', () => {
+    sizeHValue.value = sizeHSlider.value;
     renderImagePreview();
 });
-sizeValue.addEventListener('input', () => {
-    sizeSlider.value = sizeValue.value;
+sizeHValue.addEventListener('input', () => {
+    sizeHSlider.value = sizeHValue.value;
+    renderImagePreview();
+});
+
+// Horizontal Size Slider
+let sizeVValue = document.getElementById('sizeVValue');
+sizeVSlider.addEventListener('input', () => {
+    sizeVValue.value = sizeVSlider.value;
+    renderImagePreview();
+});
+sizeVValue.addEventListener('input', () => {
+    sizeVSlider.value = sizeVValue.value;
     renderImagePreview();
 });
 
@@ -673,6 +699,28 @@ angleValue.addEventListener('input', () => {
 //     volumeSlider.value = volumeValue.value;
 // });
 
+
+
+base_video.addEventListener('loadedmetadata', () => {
+    // Set the max values of sliders to the video duration
+    mediaStartSlider.max = base_video.duration;
+    mediaStopSlider.max = base_video.duration;
+    mediaStopSlider.value = base_video.duration;
+
+    // Update labels
+    mediaStartValue.textContent = mediaStartSlider.value;
+    mediaStopValue.textContent = mediaStopSlider.value;
+
+    // Update the end label with the video duration
+    // document.getElementById('endLabel').textContent = `End time: ${Math.floor(video.duration)}`;
+});
+
+base_video.addEventListener('timeupdate', () => {
+    if (base_video.currentTime >= mediaStopSlider.value) {
+        base_video.currentTime = mediaStartSlider.value;
+    }
+});
+
 let mediaStartSlider = document.getElementById('mediaStart');
 let mediaStartValue = document.getElementById('mediaStartValue');
 mediaStartSlider.addEventListener('input', () => {
@@ -689,6 +737,17 @@ mediaStopSlider.addEventListener('input', () => {
 });
 mediaStopValue.addEventListener('input', () => {
     mediaStopSlider.value = mediaStopValue.value;
+});
+
+const playPauseBtn = document.getElementById('playPauseBtn');
+playPauseBtn.addEventListener('click', () => {
+    if (base_video.paused) {
+        base_video.play();
+        playPauseBtn.textContent = "Pause";
+    } else {
+        base_video.pause();
+        playPauseBtn.textContent = "Play";
+    }
 });
 
 // Media search Buttons
@@ -738,22 +797,10 @@ mediaTabs.forEach(tab => {
         mediaTabs.forEach(t => t.classList.remove('active'));
         this.classList.add('active');
 
-        // if (this.dataset.tab === 'image') {
-        //     imageSettings.style.display = 'block';
-        //     audioVideoSettings.style.display = 'none';
-        // } else if (this.dataset.tab === 'audio') {
-        //     audioVideoSettings.style.display = 'block';
-        //     imageSettings.style.display = 'block';
-        // } else {
-        //     audioVideoSettings.style.display = 'block';
-        //     imageSettings.style.display = 'block';
-        // }
-
         tab.addEventListener('click', () => {
             mediaType = tab.dataset.tab;
             console.log("searching for: " + mediaType + 's');
         });
-
     });
 });
 
@@ -766,7 +813,7 @@ let mediaType = 'image';
 function search4Media() {
     if (searchBar.value.length > 2 || searchBar.value == "") {
         let files;
-        
+
         if (mediaType == 'image') {
             if (libraryMode.checked) {
                 files = imageLibrary;
@@ -777,14 +824,14 @@ function search4Media() {
         if (mediaType == 'audio') {
             if (libraryMode.checked) {
                 files = audioLibrary;
-            } else { 
-                files = audio; 
+            } else {
+                files = audio;
             }
         }
         if (mediaType == 'video') {
             if (libraryMode.checked) {
                 files = videoLibrary;
-            } else { 
+            } else {
                 files = videos;
             }
         }
@@ -804,6 +851,7 @@ function search4Media() {
         }
 
         console.log("Matching Search Results: ", matches)
+
         // Clear existing list
         resultList.innerHTML = '';
         matches.forEach(file => {
@@ -820,11 +868,22 @@ function search4Media() {
                 videoPreview.src = "./media/video/" + mediaLink;
                 videoPreview.height = 64;
                 videoPreview.width = 96;
-                videoPreview.play();
+
                 videoPreview.volume = 0;
 
+                videoPreview.addEventListener('mouseenter', () => {
+                    // if (videoPreview.playing == false) {
+                    videoPreview.play();
+                    // }
+                })
+
+                videoPreview.addEventListener('mouseleave', () => {
+                    // if (videoPreview.playing == false) {
+                    videoPreview.pause();
+                    // }
+                })
+
                 videoPreview.addEventListener('click', () => {
-                    var base_video = document.getElementById('base_video');
 
                     document.querySelectorAll('#list').forEach(item => {
                         item.style.background = 'white';
@@ -851,16 +910,15 @@ function search4Media() {
                         videoPreview.style.background = 'lightblue';
                         mediaLink = file;
                         videoPreview.clicked = true;
-                        if (mediaType == 'video') {
-                            base_video.src = `./media/video/${mediaLink}`;
-                            base_video.play();
-                            let width = parseInt(sizeSlider.value) / 100 * 640;
-                            let height = parseInt(sizeSlider.value) / 100 * 480;
-                            console.log("Dimensions: (" + width + "," + height + ")");
-                            drawVideo()
-                        }
+                        base_video.src = `./media/video/${mediaLink}`;
+                        base_video.src = videoPreview.src
+                        base_video.play();
+                        let width = parseInt(sizeSlider.value) / 100 * 640;
+                        let height = parseInt(sizeSlider.value) / 100 * 480;
+                        console.log("Dimensions: (" + width + "," + height + ")");
+                        // trimmedVideo();
+                        drawVideo(mediaCtx)
                     }
-
                 });
 
                 videoPreview.addEventListener('dblclick', () => {
@@ -874,7 +932,6 @@ function search4Media() {
                         console.log("Library: " + result)
                     }
                 });
-
                 resultList.appendChild(videoPreview);
             }
 
@@ -905,15 +962,17 @@ function search4Media() {
                     }
 
                     var base_audio = document.getElementById('base_audio');
-                    // var audio = new Audio();
+
+                    document.querySelectorAll('#list').forEach(item => {
+                        item.style.background = 'white';
+                    });
+
                     if (listItem.clicked == true) {
                         listItem.style.background = 'white';
                         mediaLink = "";
                         listItem.clicked = false;
                         // base_audio.src = `./media/audio/${mediaLink}`;
-                        document.querySelectorAll('#list').forEach(item => {
-                            item.style.background = 'white';
-                        });
+
                     }
                     else {
                         listItem.style.background = 'lightblue';
@@ -990,10 +1049,10 @@ function search4Media() {
                         console.log("Library: " + result)
                     }
                 });
-
                 // add the item to the list in the media display div
                 resultList.appendChild(thumbnail);
             }
+
             // if the media link is not empty, render the linked media to the canvas
             if (!(mediaLink == "")) {
                 renderImagePreview()
@@ -1002,12 +1061,11 @@ function search4Media() {
     }
 }
 
-
 function removeDuplicates(arr) {
     return arr.filter((item,
         index) => arr.indexOf(item) === index);;
 }
-// 
+
 
 var removeFromLibrary = false;
 var removeButton = document.getElementById('removeButton');
@@ -1053,7 +1111,7 @@ var imagesStr = "108-1083789_cringe-discord-emoji-clipart-png-download-transpare
 var images = imagesStr.split(",");
 var audiosStr = "100115__noisecollector__raw_cat_vomiting.mp3,104920__ekokubza123__punch-remake.wav,162763__unfa__applause-4.flac,172490__geroglp__slap.mp3,216197__rsilveira_88__cartoon_punch_03.wav,216781__castironcarousel__punch-4.aiff,239594__xtrgamr__unimpressedyay_01.wav,246303__vikuserro__mad-dude.wav,246304__vikuserro__ey-shouting.wav,246305__vikuserro__excited.wav,246306__vikuserro__aroused.wav,246307__vikuserro__yes-decisive.wav,246308__vikuserro__vomiting.wav,246309__vikuserro__sadness.wav,246310__vikuserro__meh-vocal.wav,255540__xtrgamr__sarcastic-clapping.wav,257780__xtrgamr__man-oof.wav,277022__sandermotions__applause-1.wav,317382__tobiaskosmos__slap-to-the-face.wav,341011__vikuserro__ouch.wav,341012__vikuserro__yawning-just-woke-up.wav,341013__vikuserro__duck-dies.wav,341014__vikuserro__chainsaw.wav,341015__vikuserro__dog-hit.wav,341016__vikuserro__cleaning-teeth.wav,341017__vikuserro__chainsaw-ii.wav,341018__vikuserro__barking-2.wav,341019__vikuserro__go-away-bitch.wav,341020__vikuserro__dragon-sound.wav,341031__vikuserro__yahoo-jump.wav,341032__vikuserro__yeb-hitting.wav,341033__vikuserro__oh-no.wav,341034__vikuserro__mniam-mniam-hungry.wav,341035__vikuserro__hop-jump.wav,341036__vikuserro__hehehe-laughter.wav,341037__vikuserro__snooty-teen.wav,341038__vikuserro__sneezing.wav,341039__vikuserro__whiny-female.wav,341040__vikuserro__mad-father.wav,341041__vikuserro__dog-stimulation.wav,341042__vikuserro__snore.wav,347547__masgame__applause.mp3,370710__podsburgh__vomiting-on-the-ground-remixed.flac,388525__anko6__vomit.wav,399290__chestnutjam__gagging (1).wav,399290__chestnutjam__gagging.wav,419784__14gpanskamuzatko_matej__10-vomit-scream-male (1).wav,419784__14gpanskamuzatko_matej__10-vomit-scream-male.wav,442257__jonastisell__slap-with-reverb.mp3,445998__breviceps__fart-1.wav,448380__vikuserro__strong-man-lift.wav,47356__fotoshop__oof.wav,480682__craigsmith__r02-06-medium-crowd-applause.wav,51746__erkanozan__clap.wav,57813__timtube__pukeing.wav,58836__opposit__longfart1.wav,64128__ifartinurgeneraldirection__an-awesome-fart (1).mp3,64128__ifartinurgeneraldirection__an-awesome-fart.mp3,64130__ifartinurgeneraldirection__complaining-fart.mp3,64137__ifartinurgeneraldirection__splatter-fart.mp3,71037__ifartinurgeneraldirection__fart-20.mp3,71203__ifartinurgeneraldirection__morning-fart.mp3,amber-aleart-djlunatique.com.mp3,and checkmate.mp3,Andrew-Tate-DUMBASS-djlunatique.com.mp3,Andrew-Tate-I-AM-A-GIFT-TO-FEMALES-CREATED-BY-THE-ONE-ABOVE-djlunatique.com.mp3,Andrew-Tate-WHAT-COLOR-IS-YOUR-BUGATTI-djlunatique.com.mp3,Android-meme-djlunatique.com.mp3,angels-singing.mp3,angry-cat-djlunatique.com.mp3,animan-studios-theme_fEsuoxZ.mp3,anime-sneeze-djlunatique.com.mp3,anime-wow-sound-effect.mp3,Another-One-Meme-Sound-Effect-djlunatique.com.mp3,army-yelling-djlunatique.com.mp3,asian-person-laughing-djlunatique.com.mp3,ASMR-Chips-Sound-Effect-djlunatique.com.mp3,audio.txt,auuugh-djlunatique.com.mp3,ayy-stop.mp3,bad-to-the-bone.mp3,badMove.wav,bill-cosby-sounds-djlunatique.com.mp3,bing-chilling-meme-mp3-djlunatique.com.mp3,bing-chilling_fcdGgUc.mp3,Black-Man-Crying-Meme-djlunatique.com.mp3,boom-bam-bop-djlunatique.com.mp3,BoomBamBopBadaBopBoompPow-djlunatique.com.mp3,boondocks-easy-way-or-the-hard-way.mp3,boondocks-mans-butt.mp3,boondocks-massa-deez-nutz.mp3,boondocks-nibba-moment.mp3,boondocks-the-hard-way.mp3,Borat-if-you-dont-vote-for-him-he-will-take-power-djlunatique.com.mp3,Borat-She-must-be-tight-djlunatique.com.mp3,boring-djlunatique.com.mp3,Brahh-djlunatique.com.mp3,break-monitor-djlunatique.com.mp3,brrr-skibidi-dop-dop-djlunatique.com.mp3,calm-nature-sounds-djlunatique.com.mp3,can-I-put-my-balls-in-yo-jaws-sound-effect-djlunatique.com.mp3,cash-register-sound-fx.mp3,cash.mp3,censor-beep-1.mp3,checkmate.mp3,click.wav,Come on, let’s go outside We gonna fight.mp3,cr1tikal-is-registered.mp3,crownMoved.wav,cuteanimeroar_bybakster.mp3,daddy-chill-mcjuggernuggets-mp3cut.mp3,daequan-come-here-boy-sound-effect.mp3,damn-son-whered-you-find-this_2.mp3,danger-alarm-sound-effect-meme.mp3,dbz-teleport.mp3,death-by-deathclaws-fallout_-new-vegas.mp3,deez-nuts-got-eem-original-vine-mp3cut.mp3,Discord Leave Sound Effect - djlunatique.com.mp3,Discord-Leave-louader-djlunatique.com.mp3,dmx-bitch-please.mp3,do-me-a-favor-stfu-meme.mp3,donald-trump-fake-news-sound-effect.mp3,dragoballthememusic.mp3,drop.wav,easalert1_audacityoutput.mp3,EnemyCrowned.wav,EnemyDeposed.wav,error_windows XP.mp3,everybody-shut-the-fuck-up.mp3,excuse-me-bruh-sound-effect-djlunatique.com.mp3,explosion-roblox-djlunatique.com.mp3,fbi-open-up-sfx.mp3,free-twitch_fgjropa.mp3,fuck-it-all_C4QLyLJ.mp3,fuck-this-shit-im-out.mp3,fukthatbitch.mp3,GameStart.mp3,gandalf_shallnotpass.mp3,george-micael-wham-careless-whisper-1.mp3,german nazi mad-husband.wav,get-rickroll-djlunatique.com.mp3,get-shit-on-for-sound-audiotrimmer.mp3,gigachad-sound-affect-but-better-djlunatique.com.mp3,girl-stfu-i-dont-gotta-explain-sht-to-you-iamzoie-1-1_ztAb282.mp3,god-damn-1.mp3,gokuyelling.mp3,good-job_d15pHHg.mp3,goofy-ahh.mp3,goofy-yell.mp3,gulp-gulp-gulp.mp3,gunreload.mp3,gunshot-one.mp3,ha-gay.mp3,hallelujahshort.swf.mp3,He Need Some Milk Sound Effect.mp3,heres-what-immigrants-think-about-the-wall-original-video-audiotrimmer.mp3,hes-pulling-his-c-out.mp3,holy-final.mp3,Hot-nigga-djlunatique.com.mp3,hurryup.wav,i-like-ya-and-i-want-ya.mp3,illuminati-confirmed-hq.mp3,im-fast-as-f-boi.mp3,Im-scared-djlunatique.com.mp3,im-the-biggest-bird_4A73UnO.mp3,im-the-captain-now_8Zulh97.mp3,infant baby crying.mp3,insert-cash-or-select-payment-type.mp3,i_have_the_power_of_god_and_anime_on_my_side.mp3,Joker Why So Serious Sound Effect.mp3,kamehameha.swf.mp3,KingCrowned.wav,kingDeposed.wav,laugh-peter-griffin-nerdy-goofy.mp3,leroy-jenkins.swf.mp3,llorando-crying-baby.mp3,LoseGame.wav,man hit and hurt.wav,Man-crying-Sound-Effect-djlunatique.com.mp3,maro-jump-sound-effect_1.mp3,mc-hammer-u-cant-touch-this.mp3,merge.mp3,mlg-airhorn.mp3,more-than-water.mp3,Mr-Beast-DO-SPEAKERS-LIKE-SPRINKLES-djlunatique.com.mp3,Mr-Beast-DONALD-TRUMP-djlunatique.com.mp3,Mr-Beast-IF-YOU-LEAVE-IN-THE-NEST-5-MINUTES-ILL-GIVE-YOU-4000-DOLLARS-djlunatique.com.mp3,Mr-Beast-WHATS-UP-GUYS-djlunatique.com.mp3,mynameisjeff.mp3,naruto-the-raising-fighting-spirit-extended-audiotrimmer_7wvXRts.mp3,newTurn.wav,nfl.mp3,nioce.mp3,no homo.mp3,no-1-bullshit-guy.mp3,no-god-please-no-noooooooooo.mp3,nooo.mp3,nooo.swf.mp3,nope_01.mp3,nuclear-alarm-siren.mp3,ny-video-online-audio-converter.mp3,o-kurwa-djlunatique.com.mp3,oh-my-god-bro-oh-hell-nah-man.mp3,Oh-shit-djlunatique.com.mp3,ohhellno.mp3,ohhhhh-n.mp3,outro-song_oqu8zAg.mp3,over9000.swf.mp3,p-hub-intro.mp3,panjabi-mc-mundian-to-bach-ke-the-dictator-soundtrack-0s-7s-djztxj2gpfk.mp3,pause-that-shh.mp3,pause_KzBkT4p.mp3,pieceKilled.wav,pieceMove.wav,Plain-Jane-AsAP-Ferg-Sound-Effect-djlunatique.com.mp3,pokemon-red-blue-music-wild-pokemon-victory-theme-1.mp3,puking_and_diarrhea.mp3,record-scratch-2.mp3,rizz-sounds.mp3,run-vine-sound-effect_1.mp3,sacrfice-my-own-life-djlunatique.com.mp3,Sad Violin - Sound Effect.mp3,Seagull Beach Sound Effect.mp3,Seinfeld-Bass-Transition-djlunatique.com (1).mp3,Seinfeld-Bass-Transition-djlunatique.com.mp3,seinfeld-theme_1.mp3,sensational-future.mp3,she-belongs-to-the-streets-future-meme.mp3,shut-it-down.mp3,shut-the-fuck-up_FRj0JUo.mp3,shut-up-bitch-dwayne-the-rock-johnson.mp3,shut-up-djlunatique.com.mp3,sick-dragon.wav,sitcom-laughing-1.mp3,Slap-ahh-djlunatique.com.mp3,sleeping_HwTkaox.mp3,sound-effect-giveaway-2-he-needs-some-milk.mp3,sound-effect-gucci-gang-lil-pump_UvkSCOH.mp3,sponge-stank-noise.mp3,stewie-tuba.mp3,stfu-you-nasty-btch-1-75-speed-up.mp3,Stop-the-cap-right-now-djlunatique.com.mp3,surprise-motherfucker.mp3,swag-like-ohio.mp3,td_crying.mp3,td_cryingagain.mp3,they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3,thisissparta.swf.mp3,tmp_7901-951678082.mp3,Tom-scream-djlunatique.com.mp3,tuba-knocked-out.mp3,tuba_1.mp3,tuba_hwu62g6.mp3,u-gae.mp3,uglygod.mp3,ultra-gay-seal_1.mp3,uncle-ruckus.mp3,unlce-ruckus-im-black-now.mp3,unlce-ruckus-rap-beef.mp3,unlce-ruckus-zoologist.mp3,untitled_1071.mp3,untitled_AqTw4cf.mp3,ur-mom-djlunatique.com.mp3,ussr-anthem-short2.mp3,vegeta-something-just-snapped_s9osoEc.mp3,video0-online-audio-converter_L0R7wUM.mp3,video0_k03U0Iy.mp3,vine-boom.mp3,waaaahwannn waring click sus among us soundfx.mp3,we-do-not-care_phB0mEB.mp3,wet-fart_1.mp3,What's your name sir my name is deez.mp3,what-are-you-doing-in-my-swamp-.mp3,what-did-you-say-boondocks.mp3,whiteman_3euyqUy.mp3,who-want-smoke.mp3,Why Are You Running Sound Effect - DJ Lunatique.mp3,Why You Coming Fast Sound Effect.mp3,Why-are-you-gay-Sound-Effect-djlunatique.com.mp3,Why-hello-there-old-sport-djlunatique.com.mp3,Wind Sound Effect.mp3,windows-xp-startup_1ph012N.mp3,WinGame.wav,wouldnt-let-that-shit-happen-to-me-tho_1u2eJEj.mp3,wrong-answer-sound-effect.mp3,wtf_boom.mp3,yanp.mp3,yeet-sound-effect.mp3,yeet_ivPgINo.mp3,you need to leave.mp3,you-stupid-ni_fEVypaY.mp3,you-what-spongebob.mp3,YouAreAnIdiot-djlunatique.com.mp3,Your-goofy-ahh-uncle-has-a-message-djlunatique.com.mp3,zias-stop-the-cap_RjHQpxU.mp3";
 var audio = audiosStr.split(",");
-var videosStr = "arabian camels sahara desert.mp4,DASH_96 - Copy.mp4,Footage Of An Elephant - Copy.mp4,he dead gif.mp4,Human Feeding The Little Squirrel - Copy.mp4,large-adult-brown-bear-relaxing-and-scratching-in-the-forest_hhtaknef__a5a1d685451329008fae4c4d8fcf0a2a__P360 - Copy.mp4,Pexels Videos 1508067.mp4,Pexels Videos 3616.mp4,Pexels Videos 3828.mp4,swiggityswootybooty.mp4,testdummy.mp4,The Bear Suckled Her Cubs.mp4,Video Of Goldfinches Eating.mp4,videoblocks-close-up-of-beautiful-grey-wolf-standing-in-the-forest-observing_h-p4vckgm__b4028b078dee273685f3e2c398327689__P360.mp4,videoblocks-close-up-of-large-adult-brown-bear-walking-free-in-the-forest-at-night_rnidmmbxz__a33c6960ec3b6639575f5e93dbcda765__P360.mp4,videoblocks-eurasian-wolf-canis-lupus-lupus-1_rwmtgm8ec__c6231f1487418053efa23e91f2e61b74__P360.mp4,videoblocks-lion-yawns-at-amsterdam-zoo_bqoumoog___d2c59e634f343d2c6ad630632f8bf41f__P360.mp4,videoblocks-male-lion-shakes-and-then-lays-on-grass_hrc6seyrd__124bdebf044b05ac8a08f66d08462d3e__P360.mp4,videos.txt"
+var videosStr = "2004729902.mp4,arabian camels sahara desert.mp4,DASH_96 - Copy.mp4,Footage Of An Elephant - Copy.mp4,he dead gif.mp4,Human Feeding The Little Squirrel - Copy.mp4,istockphoto-1086141788-640_adpp_is.mp4,istockphoto-1093774894-mp4-480x480-is.mp4,istockphoto-1294840225-mp4-480x480-is.mp4,istockphoto-1313222815-640_adpp_is.mp4,istockphoto-1337392214-640_adpp_is.mp4,istockphoto-803611834-640_adpp_is.mp4,large-adult-brown-bear-relaxing-and-scratching-in-the-forest_hhtaknef__a5a1d685451329008fae4c4d8fcf0a2a__P360 - Copy.mp4,Pexels Videos 1508067.mp4,Pexels Videos 2122952.mp4,Pexels Videos 3616.mp4,Pexels Videos 3828.mp4,pexels-annushka-ahuja-7986157 (2160p).mp4,pexels-brixiv-8521554 (2160p).mp4,pexels-cottonbro-5274901 (2160p).mp4,pexels-cottonbro-5275085 (2160p).mp4,pexels-cottonbro-5275086 (2160p).mp4,pexels-olia-danilevich-6005323 (1080p).mp4,pexels-pnw-production-8979139 (1080p).mp4,pexels-rodnae-productions-7045332 (1080p).mp4,pexels-rodnae-productions-7187459 (1080p).mp4,pexels-rodnae-productions-8611526 (1080p).mp4,pexels-rodnae-productions-8611530 (1080p).mp4,pexels-rodnae-productions-8611631 (1080p).mp4,pexels-rodnae-productions-8611717 (1080p).mp4,pexels-taryn-elliott-5220279.mp4,pexels-yaroslav-shuraev-8478088 (2160p).mp4,production_id_4123371 (2160p).mp4,production_id_4267245 (2160p).mp4,production_id_4267252 (2160p).mp4,production_id_4267253 (2160p).mp4,production_id_4438081 (1080p).mp4,production_id_4440942 (1080p).mp4,production_id_4896508 (1080p).mp4,production_id_5192069 (1080p).mp4,production_id_5192072 (1080p).mp4,production_id_5192157 (1080p).mp4,swiggityswootybooty.mp4,testdummy.mp4,The Bear Suckled Her Cubs.mp4,video (1080p) (1).mp4,video (1080p).mp4,Video Of Goldfinches Eating.mp4,videoblocks-close-up-of-beautiful-grey-wolf-standing-in-the-forest-observing_h-p4vckgm__b4028b078dee273685f3e2c398327689__P360.mp4,videoblocks-close-up-of-large-adult-brown-bear-walking-free-in-the-forest-at-night_rnidmmbxz__a33c6960ec3b6639575f5e93dbcda765__P360.mp4,videoblocks-eurasian-wolf-canis-lupus-lupus-1_rwmtgm8ec__c6231f1487418053efa23e91f2e61b74__P360.mp4,videoblocks-lion-yawns-at-amsterdam-zoo_bqoumoog___d2c59e634f343d2c6ad630632f8bf41f__P360.mp4,videoblocks-male-lion-shakes-and-then-lays-on-grass_hrc6seyrd__124bdebf044b05ac8a08f66d08462d3e__P360.mp4,videos.txt"
 var videos = videosStr.split(",");
 
 // Save the canvas image

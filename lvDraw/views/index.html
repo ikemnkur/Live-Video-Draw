@@ -158,15 +158,31 @@
                     <label>Volume:</label> <input id="volumeSlider" type="range" min="0" max="100" value="50"><textarea
                         id="volumeValue">50</textarea>dB%<br>
                 </div>
-                <label>Start:</label> <input id="mediaStart" type="range" min="0" max="100" value="5"
-                    placeholder="start time"><text id="mediaStartValue">0</text>%<br>
-                <label>Stop:</label> <input id="mediaStop" type="range" min="0" max="100" value="95"
-                    placeholder="end time"><text id="mediaStopValue">0</text> %<br>
+                <div style="display: flex;">
+                    <label>Start:</label> 
+                    <input id="mediaStart" type="range" min="0" max="10" value="0.1" placeholder="start time"><text id="mediaStartValue">0</text>
+                    <label>Secs</label> <br>
+                </div>
+                <div style="display: flex;">
+                        <label>Stop:</label> 
+                        <input id="mediaStop" type="range" min="0" max="10" value="0.1" placeholder="end time"><text id="mediaStopValue">100</text>
+                        <label>Secs</label> <br>
+                </div>
                 <!-- <input type="checkbox" id="medialoop"> <label for="loop" checked>Loop</label> -->
             </div>
 
             <div class="mediaSettings" id="imageSettings">
                 <div style="display: flex;">
+                    <label>Horiz. Size:</label>
+                    <input id="sizeHSlider" type="range" min="10" max="100" value="25">
+                    <textarea id="sizeHValue">25</textarea>%
+                </div>
+                <div style="display: flex;">
+                    <label>Verti. Size:</label>
+                    <input id="sizeVSlider" type="range" min="10" max="100" value="25">
+                    <textarea id="sizeVValue">25</textarea>%
+                </div>
+                <div style="display: none;">
                     <label>Size:</label>
                     <input id="sizeSlider" type="range" min="10" max="100" value="25">
                     <textarea id="sizeValue">25</textarea>%
@@ -174,7 +190,7 @@
                 <div style="display: flex;">
                     <label>Angle:</label>
                     <input id="angleSlider" type="range" min="-180" max="180" value="0">
-                    <textarea id="angleValue">0</textarea>°
+                    <textarea id="angleValue">0</textarea> °
                 </div>
                 <div id="timeDiv" style="display: flex;">
                     <label>Time: </label>
@@ -191,21 +207,23 @@
     </div>
 
 
-    <script src="draw.js"></script>
+
     <!-- <script src="/socket.io/socket.io.js"></script> -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         // var socket = io();
     </script>
     <div id="base_video_div">
-        <video id="base_video"></video>
+        <video id="base_video" src="media/video/testdummy.mp4" controls></video>
         <!-- <audio id="base_audio" controls>
             <source src="./media/audio/Android-meme-djlunatique.com.mp3">
              <source src="./media/audio/" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio> -->
         <!-- <video id="base_video" src="./media/video/testdummy.mp4"></video> -->
+        <button id="playPauseBtn">Pause</button>
     </div>
 </body>
+<script src="draw.js"></script>
 
 </html>
