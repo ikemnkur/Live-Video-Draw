@@ -2,140 +2,375 @@
 <html>
 
 <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Draw on Video</title>
-    <!-- <P id="images"><embed src="/media/image/images.txt"> </P>
-    <P id="audio"><embed src="/media/audio/audio.txt"> </P>
-    <P id="video"><embed src="/media/video/videos.txt"> </P> -->
+    <link rel="stylesheet" href="style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script>
+        const ROOM_ID = "<%= roomId %>";
+    </script>
 
-    </P>
-    <style>
-        canvas,
-        video {
-            position: absolute;
-        }
-
-        #toolbox {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
 </head>
 
+<link rel="stylesheet" href="styling.css" />
+
 <body>
-    <video id="video" autoplay playsinline></video>
+    <!-- <div id="liveVideo">
+        <video id="video" autoplay playsinline style="display: none;"></video>
+        <canvas id="videoCanvas"></canvas>
+        <canvas id="mediaCanvasFloat"></canvas>
+        <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
+        <canvas id="eraseCanvas" style="display: none;"></canvas>
+        <canvas id="textCanvas" style="display: none;"></canvas>
+        <canvas id="mediaCanvas" style="display: none;"></canvas>
+    </div> -->
 
-
-    <canvas id="canvas" style="cursor: crosshair;"></canvas>
-    <canvas id="canvasHUD" style="display: none;"></canvas>
-    <canvas id="textCanvas" style="display: none;"></canvas>
-    <canvas id="ClipImageCanvas" style="display: none;"></canvas>
-
-
-    <div id="toolbox" style="background-color:lightcyan">
-        <button id="clear">Clear</button>
-        <button id="saveCanvas">Save Drawing</button>
-        <button id="saveScreenshot">Save Screenshot</button><br />
-
-        <p>Mouse Position: <span id="coordinates">0, 0</span></p>
-
-        <label for="mode">Mode: </label>
-        <select id="mode">
-            <option value="draw">Draw</option>
-            <option value="erase">Erase</option>
-            <option value="text">Text</option>
-            <option value="addMedia">Add Media</option>
-        </select><br />
-
-        <div id="ColorEditor">
-            <label for="color">Color: </label>
-            <input type="color" id="color-picker" value="#ff0000"><br />
+    <div id="toolbox">
+        <div id="toolboxheader" style="margin-bottom: 5px;">
+            Toolbox
+            <span id="closeToolboxBtn"
+                style="float: right; width: 32px; background-color: red; text-align: center;">&times;
+            </span>
         </div>
+        <div id="toolboxSettings">
+            <button id="clear">Clear</button>
+            <button id="saveCanvas">Save Drawing</button>
+            <button id="saveScreenshot">Save Screenshot</button><br />
 
-        <div id="StrokeSizeEditor">
-            <label for="stroke-size">Stroke size: </label>
-            <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
-        </div>
+            <text>Mouse Position: <span id="coordinates">0, 0</span></text><br>
+            <text>Mouse Down Position: <span id="coordinates2">0, 0</span></text><br>
 
-        <div id="TextEditor" style="display: none;">
-            <label for="textInput">Text: </label>
-            <input type="text" id="textInput" maxlength="100" placeholder="Enter text"><br />
+            <label for="mode">Mode: </label>
+            <select id="mode">
+                <option value="draw">Draw</option>
+                <option value="erase">Erase</option>
+                <option value="text">Text</option>
+                <option value="addMedia">Add Media</option>
+                <option value="editLiveVideo">Edit Live Video</option>
+            </select><br />
 
-            <label for="fontSelector">Font Style: </label>
-            <select id="fontSelector">
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <!-- Add other fonts as desired -->
-            </select>
-
-            <!--  <label for="fontType">Font Type: </label> -->
-            <!-- <select id="fontType">
-                <option value="Regular">Regular</option>
-                <option value="Bold">Bold</option>
-                <option value="Italic">Italic</option> -->
-            <!-- Add other fonts as desired -->
-            <!-- </select>  -->
-
-            <label for="fontSize">Font Size: </label>
-            <select id="fontSize">
-                <option value="12">12</option>
-                <option value="14">14</option>
-                <option value="16">16</option>
-                <option value="20">20</option>
-                <option value="24">24</option>
-                <option value="32">32</option>
-                <!-- Add other sizes as desired -->
-            </select>
-        </div>
-
-        <div id="mediaContainer" style="display: none;">
-            <label>Mode:</label>
-            <input type="radio" name="mediaMode" id="library" checked> Library
-            <input type="radio" name="mediaMode" id="search"> Search
-
-            <div id="mediaTabs">
-                <button class="mediaTab active" data-tab="image">Image</button>
-                <button class="mediaTab" data-tab="audio">Audio</button>
-                <button class="mediaTab" data-tab="video">Video</button>
+            <div id="ColorEditor">
+                <label for="color">Color: </label>
+                <input type="color" id="color-picker" value="#ff0000"><br />
             </div>
 
-            <div>
-                <span class="searchIcon">&#128269;</span>
-                <input id="searchBar" type="text" placeholder="Search...">
-                <button id="goButton" class="searchbtn">Go</button>
+            <div id="StrokeSizeEditor">
+                <label for="stroke-size">Stroke size: </label>
+                <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
             </div>
 
-            <div id="mediaDisplay" style="height: 200px; background-color: lightgrey;">
-                <li id="mediaList">
+            <div id="TextEditor" style="display: none;">
+                <div>
+                    <label for="textInput">Text: </label>
+                    <input type="text" id="textInput" maxlength="100" placeholder="Enter text"><br />
+                </div>
 
-                </li>
+                <div>
+                    <label for="fontSelector">Font Style: </label>
+                    <select id="fontSelector">
+                        <option value="Arial">Arial</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <!-- Add other fonts as desired -->
+                    </select>
+                </div>
+
+                <div>
+                    <label for="fontType">Font Type: </label>
+                    <select id="fontType">
+                        <option value="normal">Regular</option>
+                        <option value="bold">Bold</option>
+                        <option value="italic">Italic</option>
+                        <option value="italic bold">Bold & Italic</option>
+                        <!-- Add other fonts as desired -->
+                    </select>
+                </div>
+
+                <div>
+                    <label for="fontSize">Font Size: </label>
+                    <select id="fontSize">
+                        <option value="28">28</option>
+                        <option value="12">12</option>
+                        <option value="14">14</option>
+                        <option value="16">16</option>
+                        <option value="20">20</option>
+                        <option value="24">24</option>
+                        <option value="32">32</option>
+                        <option value="48">48</option>
+                        <option value="64">64</option>
+                        <!-- Add other sizes as desired -->
+                    </select>
+                </div>
+
+                <div style=" display: flex; padding: 5px;">
+                    <label>Angle:</label>
+                    <input id="textAngleSlider" type="range" min="-180" max="180" value="0">
+                    <textarea id="textAngleValue">0</textarea>°
+                </div>
             </div>
 
-            <div class="mediaSettings" id="imageSettings">
-                <label>Size:</label> <input type="range"><br>
-                <label>Angle:</label> <input type="range">
-            </div>
+            <div id="mediaContainer" style="display: none;">
+                <div>
+                    <label>Mode:</label>
+                    <input type="radio" name="mediaMode" id="library"> Library
+                    <input type="radio" name="mediaMode" id="search" checked> Search
+                </div>
 
-            <div class="mediaSettings" id="audioVideoSettings" style="display: none;">
-                <label>Volume:</label> <input type="range"><br>
-                <label>Duration:</label> <input type="range"><br>
-                <input type="text" placeholder="Time"> <input type="checkbox" id="loop"> <label for="loop">Loop</label>
-            </div>
+                <div id="mediaTabs">
+                    Mode: <text id="mediaSearchType">Image</text>
+                    <button class="mediaTab active" data-tab="image" id="imageBtn">Image</button>
+                    <button class="mediaTab" data-tab="audio" id="audioBtn">Audio</button>
+                    <button class="mediaTab" data-tab="video" id="videoBtn">Video</button>
+                </div>
 
-            <button>Done</button>
+                <div id="searchBarDiv" style="display: flex; align-items: center;">
+                    <span class="searchIcon">&#128269;</span>
+                    <input id="searchBar" type="text" placeholder="Search...">
+                    <button id="goButton" class="searchbtn" style="padding: 3px;
+                margin: 3px;">Go</button>
+                    <button id="removeButton" class="searchbtn" style="display: none; padding: 3px;
+                margin: 3px;">Delete</button>
+                </div>
+
+                <!-- <div > -->
+
+                <div id="mediaDisplay">
+                    <div id="mediaList">
+
+                    </div>
+                </div>
+                <div id="base_video_div_" style="display: none;">
+                    <!-- <div id="base_video_div_header">Click here to move</div> -->
+                    <video id="base_video" src="media/video/Loading.mp4"></video>
+                    <!-- <audio id="base_audio" controls>
+                    <source src="./media/audio/Android-meme-djlunatique.com.mp3">
+                     <source src="./media/audio/" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio> -->
+                    <button id="playPauseBtn">Pause</button>
+                    <button id="videoBackBtn">Back</button>
+                </div>
+
+                <!-- </div> -->
+                <div class="mediaSettings" id="audioVideoSettings" style="display: none;">
+                    <audio id="base_audio" controls>
+                        <source src="./media/audio/Android-meme-djlunatique.com.mp3">
+                        <!-- <source src="./media/audio/" type="audio/mpeg"> -->
+                        Your browser does not support the audio element.
+                    </audio>
+                    <div style="display: none;">
+                        <label>Volume:</label> <input id="volumeSlider" type="range" min="0" max="100"
+                            value="50"><textarea id="volumeValue">50</textarea>dB%<br>
+                    </div>
+                    <div style="display: flex;">
+                        <label>Start:</label>
+                        <input id="mediaStart" type="range" min="0" max="10" value="0.1" placeholder="start time"><text
+                            id="mediaStartValue">0</text>
+                        <label>Secs</label> <br>
+                    </div>
+                    <div style="display: flex;">
+                        <label>Stop:</label>
+                        <input id="mediaStop" type="range" min="0" max="10" value="0.1" placeholder="end time"><text
+                            id="mediaStopValue">100</text>
+                        <label>Secs</label> <br>
+                    </div>
+                    <!-- <input type="checkbox" id="medialoop"> <label for="loop" checked>Loop</label> -->
+                </div>
+
+                <div class="mediaSettings" id="imageSettings">
+                    <div style="display: flex;">
+                        <label>Horiz. Size:</label>
+                        <input id="sizeHSlider" type="range" min="10" max="100" value="25">
+                        <textarea id="sizeHValue">25</textarea>%
+                    </div>
+                    <div style="display: flex;">
+                        <label>Verti. Size:</label>
+                        <input id="sizeVSlider" type="range" min="10" max="100" value="25">
+                        <textarea id="sizeVValue">25</textarea>%
+                    </div>
+                    <div style="display: none;">
+                        <label>Size:</label>
+                        <input id="sizeSlider" type="range" min="10" max="100" value="25">
+                        <textarea id="sizeValue">25</textarea>%
+                    </div>
+                    <div style="display: flex;">
+                        <label>Angle:</label>
+                        <input id="angleSlider" type="range" min="-180" max="180" value="0">
+                        <textarea id="angleValue">0</textarea> °
+                    </div>
+                    <div id="timeDiv" style="display: flex;">
+                        <label>Time: </label>
+                        <input id="timeValue"></input> Seconds
+                    </div>
+                </div>
+
+                <div>
+                    <button id="doneBtn">Done</button>
+                    <button id="libraryBtn">Add to Library</button>
+                    <button id="sendBtn">Send</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="draw.js"></script>
-    <!-- <script src="/socket.io/socket.io.js"></script> -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script>
-        // var socket = io();
-    </script>
+
+
+    <!-- New stuff  -->
+    <div class="header">
+        <div class="logo">
+            <div class="header__back">
+                <i class="fas fa-angle-left"></i>
+            </div>
+            <h3>Video Chat</h2>
+        </div>
+    </div>
+    <div class="main">
+        <div class="main__left">
+            <div class="videos__group">
+                <div id="video-grid">
+
+                    <div class="parent">
+                        <div id="liveVideo">
+                            <video id="video" autoplay playsinline style="display: none;"></video>
+                            <canvas id="videoCanvas"></canvas>
+                            <canvas id="mediaCanvasFloat"></canvas>
+                            <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
+                            <canvas id="eraseCanvas" style="display: none;"></canvas>
+                            <canvas id="textCanvas" style="display: none;"></canvas>
+                            <canvas id="mediaCanvas" style="display: none;"></canvas>
+                        </div>
+                    </div>
+
+                    
+
+                </div>
+            </div>
+            <div class="options">
+                <div class="options__left">
+                    <div id="stopVideo" class="options__button">
+                        <i class="fa fa-video-camera"></i>
+                    </div>
+                    <div id="muteButton" class="options__button">
+                        <i class="fa fa-microphone"></i>
+                    </div>
+                    <div onclick="document.getElementById('id01').style.display='block'" id="settingsButton"
+                        class="options__button">
+                        <i class="fa fa-gears"></i>
+                    </div>
+                    <div onclick="document.getElementById('toolbox').style.display='block'" id="openToolboxButton"
+                        class="options__button">
+                        <i class="fa fa-tools"></i>
+                    </div>
+                    <div id="showChat" class="options__button">
+                        <i class="fa fa-comment"></i>
+                    </div>
+                </div>
+                <div class="options__right">
+                    <div id="inviteButton" class="options__button">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main__right">
+            <div class="main__chat_window">
+                <div class="messages">
+
+                </div>
+            </div>
+            <div class="main__message_container">
+                <input id="chat_message" type="text" autocomplete="off" placeholder="Type message here...">
+                <div id="send" class="options__button">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <title>W3.CSS</title> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <div class="w3-container">
+
+
+        <div id="id01" class="w3-modal">
+            <div class="w3-modal-content w3-animate-top w3-card-4">
+                <header class="w3-container w3-teal">
+                    <span onclick="document.getElementById('id01').style.display='none'"
+                        class="w3-button w3-display-topright">&times;</span>
+                    <h2>Media Input/Output Settings</h2>
+                </header>
+                <div class="w3-container">
+                    <p>Sources:</p>
+                    <div id="container">
+                        <div id="settings" style="display: block ">
+                            <div id="settingsDiv">
+                                <div class="select" style="padding: 2px;">
+                                    <label for="audioSource">Audio input: </label> <select id="audioSource"
+                                        style="width: 200px;"></select>
+                                </div>
+
+                                <div class="select" style="padding: 2px;">
+                                    <label for="audioOutput">Audio output: </label> <select id="audioOutput"
+                                        style="width: 200px;"></select>
+                                </div>
+
+                                <div class="select" style="padding: 2px;">
+                                    <label for="videoSource">Video source: </label> <select id="videoSource"
+                                        style="width: 200px;"></select>
+                                </div>
+
+                                <div>
+                                    <div id="videoDiv" style="padding: 2px;">
+                                        <h3>
+                                            Video source Preview:
+                                            <p id="muteMsg"></p>
+                                        </h3>
+                                        <video style="border-radius: 5px; border: black solid;" id="videoPreview"
+                                            muted="true" onclick="togglemute()" playsinline autoplay></video>
+
+                                        <script>
+                                            let vid = document.getElementById("video");
+                                            var mutemsg;
+                                            function togglemute() {
+                                                vid.muted = !vid.muted;
+                                                console.log("video clicked, muted = ", vid.muted);
+                                                mutemsg = vid.muted;
+                                                var mm = document.getElementById("muteMsg")
+                                                if (!mutemsg)
+                                                    mm.innerText = "(unmuted)";
+                                                else
+                                                    mm.innerText = "(muted)"
+                                            }
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <p>Some text..</p>? -->
+                </div>
+                <footer class="w3-container w3-teal">
+                    <p>Modal Footer</p>
+                    <button id="videoChangeDoneBtn" onclick="document.getElementById('id01').style.display='none'"
+                        class="w3-button w3-display-bottomright">Done</button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
+
+<script src="getAVsource.js"></script>
+<script src="draw.js"></script>
+<script src="script.js"></script>
+
 
 </html>
