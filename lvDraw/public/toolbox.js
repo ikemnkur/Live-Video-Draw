@@ -733,24 +733,3 @@ goButton.addEventListener('click', () => {
     search4Media();
 });
 
-
-// function canvas2video() {
-//     let temporaryCanvas = document.createElement('canvas');
-//     let temporaryCtx = temporaryCanvas.getContext('2d');
-
-//     temporaryCanvas.width = video.videoWidth;
-//     temporaryCanvas.height = video.videoHeight;
-
-//     // // Draw the video frame to the temporary drawCanvas.
-//     // temporaryCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-//     // Then draw the main canvas (drawing) on top of that.
-//     temporaryCtx.drawImage(videoCanvas, 0, 0);
-//     // Then draw the main canvas (drawing) on top of that.
-//     temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
-//     // Then draw the main canvas (drawing) on top of that.
-//     temporaryCtx.drawImage(drawCanvas, 0, 0);
-
-//     let myVideoStream = temporaryCanvas.captureStream(25);
-
-// }
-
