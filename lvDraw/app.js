@@ -38,3 +38,4 @@ io.on("connection", (socket) => {
 });
 
 server.listen(process.env.PORT || 3030);
+console.log("app is live on localhost:3030")

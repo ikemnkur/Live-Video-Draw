@@ -106,7 +106,7 @@
                     </select>
                 </div>
 
-                <div style=" display: flex; padding: 5px;">
+                <div style=" display: flex;">
                     <label>Angle:</label>
                     <input id="textAngleSlider" type="range" min="-180" max="180" value="0">
                     <textarea id="textAngleValue">0</textarea>°
@@ -204,15 +204,15 @@
                     </div>
                     <div id="timeDiv" style="display: flex;">
                         <label>Time: </label>
-                        <input id="timeValue"></input> Seconds
+                        <input id="timeValue"></input>
+                        <label> Seconds </label>
                     </div>
                 </div>
-
-                <div>
-                    <button id="doneBtn">Done</button>
-                    <button id="libraryBtn">Add to Library</button>
-                    <button id="sendBtn">Send</button>
-                </div>
+            </div>
+            <div id="sumbitDrawing">
+                <button id="doneBtn" style="float: left;">Done</button>
+                <button id="libraryBtn" style="margin-left: 55px;">Add to Library</button>
+                <button id="sendBtn" style="float: right;">Send</button>
             </div>
         </div>
     </div>
@@ -234,18 +234,19 @@
                 <div id="video-grid">
 
                     <!-- <div class="parent"> -->
-                        <div id="liveVideo" class="canvas-container">
-                            <video id="video" autoplay playsinline style="display: none;"></video>
-                            <canvas id="videoCanvas"></canvas>
-                            <canvas id="tempMediaCanvas"></canvas>
-                            <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
-                            <canvas id="eraseCanvas" style="display: none;"></canvas>
-                            <canvas id="textCanvas" style="display: none;"></canvas>
-                            <canvas id="mediaCanvas" style="display: none;"></canvas>
-                        </div>
+                    <div id="liveVideo" class="canvas-container">
+                        <video id="video" autoplay playsinline style="display: none;"></video>
+                        <canvas id="videoCanvas"></canvas>
+                        <canvas id="tempMediaCanvas"></canvas>
+                        <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
+                        <canvas id="eraseCanvas" style="display: none;"></canvas>
+                        
+                        <canvas id="mediaCanvas" style="display: none;"></canvas>
+                        <canvas id="textCanvas" style="display: none;"></canvas>
+                    </div>
                     <!-- </div> -->
 
-                    
+
 
                 </div>
             </div>

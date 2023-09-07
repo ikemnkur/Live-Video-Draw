@@ -54,6 +54,8 @@ var peer = new Peer({
   debug: 3
 });
 
+// --------- Merge the user's drawings with the video stream  ---------//
+
 let temporaryCanvas = document.createElement('canvas');
 let temporaryCtx = temporaryCanvas.getContext('2d');
 
@@ -127,8 +129,6 @@ peer.on("open", (id) => {
   console.log('my id is' + id);
   socket.emit("join-room", ROOM_ID, id, user);
 });
-
-
 
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
@@ -227,10 +227,49 @@ class liveVideoObj {
     this.property = "I'm a property";
     let liveVideoTemp = document.getElementById("liveVideo");
     this.liveVideo = liveVideoTemp.cloneNode(true);
+    this.liveVideo.id = this.liveVideo.id + "#" + newUsername;
+
     this.temporaryCanvas = document.createElement('canvas');
     this.temporaryCtx = temporaryCanvas.getContext('2d');
+
     this.myVideoStream = temporaryCanvas.captureStream(25);
+
+    this.video = this.liveVideo.children[0];
+    this.videoCanvas = this.liveVideo.children[1];
+    this.tempMediaCanvas = this.liveVideo.children[2];
+    this.drawCanvas = this.liveVideo.children[3];
+    this.eraseCanvas = this.liveVideo.children[4];
+    this.textCanvas = this.liveVideo.children[5];
+    this.mediaCanvas = this.liveVideo.children[6];
+
+    this.videoCTX = this.videoCanvas.getContext('2d');
+    this.drawCTX = this.drawCanvas.getContext('2d');
+    this.eraseCTX = this.eraseCanvas.getContext('2d');
+    this.textCTX = this.textCanvas.getContext('2d');
+    this.tempMediaCTX = this.tempMediaCanvas.getContext('2d');
+    this.mediaCTX = this.mediaCanvas.getContext('2d');
+
+    this.liveVideo.addEventListener("click", () => {
+      if (selectedLiveVideoID != this.liveVideo.id) {
+        selectStream(this.liveVideo)
+      }
+    });
   }
+
+  videoPlay() {
+    // ----------- Video Initialization ----------//
+    // this.video.addEventListener('play', function () {
+    //   var $this = this; //cache
+    //   (function loop() {
+    //     if (!$this.paused && !$this.ended) {
+    //       this.videoCTX.drawImage($this, 0, 0);
+    //       setTimeout(loop, 1000 / 30); // drawing at 30fps
+    //     }
+    //   })();
+    // }, 0);
+
+  }
+
   method() {
     console.log("Hello, I'm a method!");
   }
@@ -251,35 +290,35 @@ class liveVideoObj {
     // let myVideoStream = temporaryCanvas.captureStream(25);
   }
 
-  updateCanvas(){
-    let videoCanvas = this.liveVideo.children[1];
-    let tempMediaCanvas = this.liveVideo.children[2]; 
-    let drawCanvas = this.liveVideo.children[3];
+  updateCanvas() {
+    this.videoPlay();
     this.updates = setInterval(() => {
-      this.canvas2video(videoCanvas, tempMediaCanvas, drawCanvas);
+      this.canvas2video(this.videoCanvas, this.tempMediaCanvas, this.drawCanvas);
     }, 1000 / 30);
   }
 
-  createElements(){
-
+  createElements() {
     // let liveVideoTemp = document.getElementById("liveVideo");
     // let liveVideo = liveVideoTemp.cloneNode(true);
-    this.liveVideo.id = this.liveVideo.id + "#" + newUsername;
+
     var children = this.liveVideo.children;
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
       child.id = child.id + "#" + newUsername;
     }
-    
-    this.liveVideo.children[0].srcObject = stream;
-    this.liveVideo.children[0].play();
+
+    this.video.srcObject = stream;
+    this.video.play();
   }
 
-  renderElement(){
+  renderElement() {
     return this.liveVideo;
   }
+
+
+
 }
 
-const obj = new liveVideoObj();
-console.log(obj.property);
-obj.method();
+// const obj = new liveVideoObj();
+// console.log(obj.property);
+// obj.method();

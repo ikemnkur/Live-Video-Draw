@@ -22,8 +22,6 @@ let ctxVal = false;
 
 // The text Editor Tools and controls
 let textEditor = document.getElementById('TextEditor');
-let textCanvas = document.getElementById('textCanvas');
-let textCtx = textCanvas.getContext('2d');
 let textInput = document.getElementById('textInput');
 let fontSelector = document.getElementById('fontSelector');
 let fontType = document.getElementById('fontType');
@@ -170,7 +168,7 @@ saveScreenshotButton.addEventListener('click', () => {
 modeSelect.addEventListener('change', (e) => {
 
     mode = e.target.value;
-    ctxH.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    eraseCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     var StrokeSizeEditor = document.getElementById('StrokeSizeEditor');
     var ColorEditor = document.getElementById('ColorEditor');
 
@@ -179,7 +177,7 @@ modeSelect.addEventListener('change', (e) => {
         eraseCanvas.style.display = 'none';
         textCanvas.style.display = 'none';
         ColorEditor.style.display = 'block';
-        StrokeSizeEditor.style.display = 'block';
+        StrokeSizeEditor.style.display = 'flex';
     }
 
     if (mode === 'erase') {
@@ -187,7 +185,7 @@ modeSelect.addEventListener('change', (e) => {
         eraseCanvas.style.display = 'block';
         textCanvas.style.display = 'none';
         ColorEditor.style.display = 'none';
-        StrokeSizeEditor.style.display = 'block';
+        StrokeSizeEditor.style.display = 'flex';
     } else {
         eraseCanvas.style.display = 'none';
     }
@@ -203,7 +201,7 @@ modeSelect.addEventListener('change', (e) => {
     } else {
         textEditor.style.display = 'none';
         textCanvas.style.display = 'none';
-        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
         document.getElementById("textAngleSlider").style.display = 'none';
     }
 
@@ -246,12 +244,31 @@ sendBtn.addEventListener('click', () => {
 
 // Dyanamic Labels, updates the slider's text in real-time
 
+
+// // Text Editior Update Changes in Setting in Realtime
+
+// textInput.addEventListener('input', () => {
+//     renderTextPreview(e, textCanvas)
+// });
+// fontSelector.addEventListener('change', () => {
+//     renderTextPreview(e, textCanvas)
+// });
+// fontType.addEventListener('change', () => {
+//     renderTextPreview(e, textCanvas)
+// });
+// fontSizeSelector.addEventListener('change', () => {
+//     renderTextPreview(e, textCanvas)
+// });
+
+
 // ----------Angle Slider control
 textAngleSlider.addEventListener('input', () => {
     textAngleValue.value = textAngleSlider.value;
+    renderTextPreview();
 });
 textAngleValue.addEventListener('input', () => {
     textAngleSlider.value = textAngleValue.value;
+    renderTextPreview();
 });
 
 // Horizontal Size Slider

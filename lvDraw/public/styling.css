@@ -37,6 +37,7 @@
     border: #005658 5px solid;
     border-radius: 5px;
     width: 370px;
+    z-index: 5;
 }
 
 #mediaDisplay {
@@ -100,7 +101,8 @@ label {
 }
 
 textarea {
-    height: 16px;
+    resize: none;
+    height: 24px;
     width: 48px;
 }
 
@@ -145,4 +147,37 @@ input {
     background-color: rgba(0, 0, 0, 0.5);
     grid-row-start: 1;
     grid-column-start: 1;
+}
+
+#timeValue {
+    width: 48px;
+    height: 32px;
+    margin: 3px;
+}
+#imageSettings > div {
+    margin: 3px;
+}
+
+#goButton{
+    width: 64px;
+}
+
+#TextEditor{
+    margin: 5px;
+}
+
+#textInput{
+    margin: 3px;
+}
+
+#StrokeSizeEditor{
+    display: flex;
+}
+
+#textAngleValue{
+    resize: none;
+    width: 64px;
+}
+#mediaContainer{
+    margin: 4px 0px;
 }

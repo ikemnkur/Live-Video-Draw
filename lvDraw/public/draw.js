@@ -1,69 +1,65 @@
+let myLiveVideo = document.getElementById('liveVideo');
+myLiveVideo.id = "myVid";
 let video = document.getElementById('video');
+let selectedLiveVideoID = myLiveVideo.id;
 
 let videoCanvas = document.getElementById('videoCanvas');
 let drawCanvas = document.getElementById('drawCanvas');
 let eraseCanvas = document.getElementById('eraseCanvas');
+let textCanvas = document.getElementById('textCanvas');
 let tempMediaCanvas = document.getElementById('tempMediaCanvas');
 let mediaCanvas = document.getElementById('mediaCanvas');
 
-let mcfCtx = mediaCanvas.getContext('2d')
-let mediaCtx = mediaCanvas.getContext('2d');
-var vcCTX = videoCanvas.getContext('2d');
-let ctx = drawCanvas.getContext('2d');
-let ctxH = eraseCanvas.getContext('2d');
-let ctxMCF = tempMediaCanvas.getContext('2d');
+var videoCTX = videoCanvas.getContext('2d');
+let drawCTX = drawCanvas.getContext('2d');
+let eraseCTX = eraseCanvas.getContext('2d');
+let textCTX = textCanvas.getContext('2d');
+let tempMediaCTX = tempMediaCanvas.getContext('2d');
+let mediaCTX = mediaCanvas.getContext('2d');
 
-// let colorPicker = document.getElementById('color-picker');
-// let strokeSizeSlider = document.getElementById('stroke-size');
-// let clearButton = document.getElementById('clear');
-// let modeSelect = document.getElementById('mode');
+selectStream(myLiveVideo);
 
-// let angleSlider = document.getElementById('angleSlider');
-// let sizeHSlider = document.getElementById('sizeHSlider');
-// let sizeVSlider = document.getElementById('sizeVSlider');
-// let sizeSlider = document.getElementById('sizeSlider');
-// let durationSlider = document.getElementById('durationSlider');
-// let offsetInput = document.getElementById('offsetDuration');
-// let volumeSlider = document.getElementById('volumeSlider');
+// Select this  as the new liveVideo to draw onabort.
+myLiveVideo.addEventListener("click", () => {
+    if (selectedLiveVideoID != myLiveVideo.id) {
+        selectStream(myLiveVideo);
+    }
+})
 
-// let bvd = document.getElementById("base_video_div_")
-// let mediaDisplay = document.getElementById("mediaDisplay")
+// Update the elements to 
+function selectStream(liveVideo) {
+    selectedLiveVideoID = liveVideo.id
+    console.log("New live video selected: ", selectedLiveVideoID)
+    video = liveVideo.children[0];
+    videoCanvas = liveVideo.children[1];
+    tempMediaCanvas = liveVideo.children[2];
+    drawCanvas = liveVideo.children[3];
+    eraseCanvas = liveVideo.children[4];
+    textCanvas = liveVideo.children[5];
+    mediaCanvas = liveVideo.children[6];
 
-// let showEraser = false;
+    videoCTX = videoCanvas.getContext('2d');
+    drawCTX = drawCanvas.getContext('2d');
+    eraseCTX = eraseCanvas.getContext('2d');
+    textCTX = textCanvas.getContext('2d');
+    tempMediaCTX = tempMediaCanvas.getContext('2d');
+    mediaCTX = mediaCanvas.getContext('2d');
+
+    setupEventListeners();
+}
+
 // let ctxVal = false;
 
-// let coordinatesDisplay = document.getElementById('coordinates');
-// let coordinatesDisplay2 = document.getElementById('coordinates2');
-// // the art mode( draw, erase, add text, add media)
-// let mode = 'draw';
-// // mouse moving position
-// let mouseX = video.width / 2;
-// let mouseY = video.height / 2;
-// // mosue down position
-// let mouseX2 = 320//video.width / 2;
-// let mouseY2 = 240//video.height / 2;
+//Drag Image or video around on the screen
+let moveMedia = false;
+let moveText = false;
 
-// let textEditor = document.getElementById('TextEditor');
-// let textCanvas = document.getElementById('textCanvas');
-// let textCtx = textCanvas.getContext('2d');
-// let textInput = document.getElementById('textInput');
-// let fontSelector = document.getElementById('fontSelector');
-// let fontType = document.getElementById('fontType');
-// let fontSizeSelector = document.getElementById('fontSize');
-// let textAngleSlider = document.getElementById('textAngleSlider');
-// let textAngleValue = document.getElementById('textAngleValue');
-
-
+//The link to the media file on the server
 let mediaLink = '';
-// let base_video = document.getElementById('base_video');
 
-let size = 1;
+// let size = 1;
 let angle = 0;
 let time = 0;
-
-// var audioLibrary = []
-// var imageLibrary = []
-// var videoLibrary = []
 
 // loops, 1 to 100 steps
 var interval = setInterval(() => {
@@ -71,200 +67,304 @@ var interval = setInterval(() => {
     if (time > 99) time = 0;
 }, 50);
 
-
-
-// navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-//     .then((stream) => {
-        // video.srcObject = stream;
-        video.addEventListener('play', () => {
-            drawCanvas.width = video.videoWidth;
-            drawCanvas.height = video.videoHeight;
-            eraseCanvas.width = video.videoWidth;
-            eraseCanvas.height = video.videoHeight;
-            textCanvas.width = video.videoWidth;
-            textCanvas.height = video.videoHeight;
-            videoCanvas.width = video.videoWidth;
-            videoCanvas.height = video.videoHeight;
-            mediaCanvas.width = video.videoWidth;
-            mediaCanvas.height = video.videoHeight;
-            tempMediaCanvas.width = video.videoWidth;
-            tempMediaCanvas.height = video.videoHeight;
-        });
-        video.addEventListener('play', function () {
-            var $this = this; //cache
-            (function loop() {
-                if (!$this.paused && !$this.ended) {
-                    vcCTX.drawImage($this, 0, 0);
-                    setTimeout(loop, 1000 / 30); // drawing at 30fps
-                }
-            })();
-        }, 0);
-    // })
-    // .catch((err) => {
-    //     console.error("Error accessing media devices.", err);
-    // });
-
 let drawing = false;
 let x = 0;
 let y = 0;
 
-// Canvas HUD elements
+function setupEventListeners() {
 
-eraseCanvas.addEventListener('mousedown', (e) => {
-    showEraser = true;
-    console.log("showEraser: ", showEraser);
+    // ----------- Video Initialization ----------//
+    video.addEventListener('play', () => {
+        drawCanvas.width = video.videoWidth;
+        drawCanvas.height = video.videoHeight;
+        eraseCanvas.width = video.videoWidth;
+        eraseCanvas.height = video.videoHeight;
+        textCanvas.width = video.videoWidth;
+        textCanvas.height = video.videoHeight;
+        videoCanvas.width = video.videoWidth;
+        videoCanvas.height = video.videoHeight;
+        mediaCanvas.width = video.videoWidth;
+        mediaCanvas.height = video.videoHeight;
+        tempMediaCanvas.width = video.videoWidth;
+        tempMediaCanvas.height = video.videoHeight;
+    });
 
-    x = e.offsetX;
-    y = e.offsetY;
-    drawing = true;
-});
+    video.addEventListener('play', function () {
+        var $this = this; //cache
+        (function loop() {
+            if (!$this.paused && !$this.ended) {
+                videoCTX.drawImage($this, 0, 0);
+                setTimeout(loop, 1000 / 30); // drawing at 30fps
+            }
+        })();
+    }, 0);
 
-eraseCanvas.addEventListener('mousemove', (e) => {
-    if (drawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+    // Canvas HUD elements
+    eraseCanvas.addEventListener('mousedown', (e) => {
+        showEraser = true;
+        console.log("showEraser: ", showEraser);
+
         x = e.offsetX;
         y = e.offsetY;
-    }
+        drawing = true;
+    });
 
-    // Display the mouse coordinates.
-    coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
-    mouseX = e.offsetX;
-    mouseY = e.offsetY;
+    eraseCanvas.addEventListener('mousemove', (e) => {
+        if (drawing === true) {
+            drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+            x = e.offsetX;
+            y = e.offsetY;
+        }
 
-    // Render the eraser square if the mode is not 'draw'.
-    if (modeSelect.value === 'erase') {
-        renderEraserSquare(e.offsetX, e.offsetY);
-    }
-});
+        // Display the mouse coordinates.
+        coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
+        mouseX = e.offsetX;
+        mouseY = e.offsetY;
 
-eraseCanvas.addEventListener('mouseup', (e) => {
-    showEraser = false;
-    console.log("showEraser: ", showEraser);
+        // Render the eraser square if the mode is not 'draw'.
+        if (modeSelect.value === 'erase') {
+            renderEraserSquare(e.offsetX, e.offsetY);
+        }
+    });
 
-    if (drawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
-        x = 0;
-        y = 0;
-        drawing = false;
-    }
-});
+    eraseCanvas.addEventListener('mouseup', (e) => {
+        showEraser = false;
+        console.log("showEraser: ", showEraser);
 
-// Main Canvas
+        if (drawing === true) {
+            drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+            x = 0;
+            y = 0;
+            drawing = false;
+        }
+    });
 
-drawCanvas.addEventListener('mousedown', (e) => {
-    x = e.offsetX;
-    y = e.offsetY;
-    drawing = true;
-});
-
-drawCanvas.addEventListener('mousemove', (e) => {
-    if (drawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+    // Main Canvas
+    drawCanvas.addEventListener('mousedown', (e) => {
         x = e.offsetX;
         y = e.offsetY;
+        drawing = true;
+    });
+
+    drawCanvas.addEventListener('mousemove', (e) => {
+        if (drawing === true) {
+            drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+            x = e.offsetX;
+            y = e.offsetY;
+        }
+
+        // Display the mouse coordinates.
+        coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
+        mouseX = e.offsetX;
+        mouseY = e.offsetY;
+    });
+
+    drawCanvas.addEventListener('mouseup', (e) => {
+        if (drawing === true) {
+            drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+            x = 0;
+            y = 0;
+            drawing = false;
+        }
+    });
+
+    // ---------------mouse move event listener
+    textCanvas.addEventListener('mousemove', (e) => {
+        if (mode === 'text') {
+            // renderTextPreview();
+            // Display the mouse coordinates.
+            coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
+            mouseX = e.offsetX;
+            mouseY = e.offsetY;
+        }
+    });
+
+    // Click the canvas to move the Image to the mouse position
+    textCanvas.addEventListener('mousedown', (e) => {
+        if (mode === 'text') {
+
+            console.log("Mousedown");
+            moveText = true;
+
+            textCanvas.addEventListener('mousemove', (e) => {
+                if (moveText)
+                    moveDText(e);
+            });
+
+            function moveDText(e) {
+                mouseX2 = e.offsetX;
+                mouseY2 = e.offsetY;
+                // renderImagePreview();
+                coordinatesDisplay2.innerText = `${e.offsetX}, ${e.offsetY}`;
+                console.log("Moveing Text");
+            }
+
+            textCanvas.addEventListener('mouseup', (e) => {
+                moveText = false;
+                console.log("Mouseup");
+            });
+
+        }
+    });
+
+    // textCanvas.addEventListener('click', finalizeText());
+
+    // Image Media Editor
+    mediaCanvas.addEventListener('mousemove', (e) => {
+        if (mode === 'addMedia') {
+            // renderImagePreview();
+            // Display the mouse coordinates.
+            coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
+            mouseX = e.offsetX;
+            mouseY = e.offsetY;
+        }
+    });
+
+    // Click the canvas to move the Image to the mouse position
+    mediaCanvas.addEventListener('mousedown', (e) => {
+        if (mode === 'addMedia') {
+
+            console.log("Mousedown");
+            moveMedia = true;
+
+            mediaCanvas.addEventListener('mousemove', (e) => {
+                if (moveMedia)
+                    moveDMedia(e);
+            });
+
+            function moveDMedia(e) {
+                mouseX2 = e.offsetX;
+                mouseY2 = e.offsetY;
+                // renderImagePreview();
+                coordinatesDisplay2.innerText = `${e.offsetX}, ${e.offsetY}`;
+                console.log("Moveing Media");
+            }
+
+            mediaCanvas.addEventListener('mouseup', (e) => {
+                moveMedia = false;
+                console.log("Mouseup");
+            });
+
+        }
+    });
+
+    // clicking on this button will finalize the image and render it arcoss the stream on the selected stream
+    let doneBtn = document.getElementById('doneBtn');
+    doneBtn.addEventListener('click', () => {
+        if (mode == "text")
+            finalizeText()
+        else
+            finalizeImage();
+    });
+
+}
+
+
+// -----------rendering the text in real time at mouse position
+
+function renderTextPreview() {
+    textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    textCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+    textCTX.fillStyle = colorPicker.value;
+    // let x = e ? e.offsetX : textCanvas.width / 2;
+    // let y = e ? e.offsetY : textCanvas.height / 2;
+    let angle = textAngleSlider.value;
+    // textCTX.save(); //save the state of canvas
+    // textCTX.translate(x, y); //let's translate
+    // textCTX.rotate(angle * Math.PI / 180)
+    // textCTX.translate(-x, -y); //let's translate
+    // textCTX.fillText(textInput.value, x, y);
+    // textCTX.restore(); //restore the state of canvas
+
+    //// textCTX.rotate(-angle * Math.PI / 180)
+    //// textAngleValue.innerText = textAngleSlider.value;
+
+    let height = fontSizeSelector.value;
+    let width = textInput.value * fontSizeSelector.value / 2;
+
+    // translate and rotate the canvas so that the image is centered
+    textCTX.save();
+    textCTX.translate(mouseX2, mouseY2);
+    textCTX.rotate(angle * Math.PI / 180);
+    textCTX.translate(-mouseX2, -mouseY2);
+
+    // draw the "edit image" background behind the media object
+    if (Math.floor(time / 10) % 2) textCTX.strokeStyle = '#ff0000';
+    else textCTX.strokeStyle = '#000000';
+    textCTX.globalAlpha = .4;
+    textCTX.shadowColor = "#d53";
+    textCTX.shadowBlur = 20;
+    textCTX.lineJoin = "round";
+    textCTX.lineWidth = 5;
+    // mediaCTX.strokeStyle = "#38f";
+    textCTX.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
+    textCTX.globalAlpha = 1;
+
+    // draw the image
+    // textCTX.fillText(textInput.value, mouseX2, mouseY2);
+    textCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 - height / 2);
+    // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+    textCTX.restore();
+}
+
+// -------print the text to the main canvas
+
+function finalizeText() {
+    if (mode === 'text') {
+        // let angle = textAngleSlider.value;
+        // drawCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+        // drawCTX.fillStyle = colorPicker.value;
+
+        // let x = e ? e.offsetX : textCanvas.width / 2;
+        // let y = e ? e.offsetY : textCanvas.height / 2;
+
+        // drawCTX.save();
+        // drawCTX.translate(x, y);
+        // drawCTX.rotate(angle * Math.PI / 180);
+        // drawCTX.translate(-x, -y);
+        // drawCTX.fillText(textInput.value, e.offsetX, e.offsetY);
+        // textInput.value = "";
+        // textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        // drawCTX.restore();
+
+        ///////////////////// New
+        textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        drawCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+        drawCTX.fillStyle = colorPicker.value;
+
+        let angle = textAngleSlider.value;
+        let height = fontSizeSelector.value;
+        let width = textInput.value * fontSizeSelector.value / 2;
+
+        // translate and rotate the canvas so that the image is centered
+        drawCTX.save();
+        drawCTX.translate(mouseX2, mouseY2);
+        drawCTX.rotate(angle * Math.PI / 180);
+        drawCTX.translate(-mouseX2, -mouseY2);
+
+        // draw the image
+        // drawCTX.fillText(textInput.value, mouseX2, mouseY2);
+        drawCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 - height / 2);
+        textInput.value = "";
+        // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+        drawCTX.restore();
     }
-
-    // Display the mouse coordinates.
-    coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
-    mouseX = e.offsetX;
-    mouseY = e.offsetY;
-
-});
-
-drawCanvas.addEventListener('mouseup', (e) => {
-    if (drawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
-        x = 0;
-        y = 0;
-        drawing = false;
-    }
-});
-
-// clearButton.addEventListener('click', () => {
-//     ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-// });
-
-// angleSlider.addEventListener('onchange', () => {
-//     angle = angleSlider.value;
-//     document.getElementById('angleValue').value = angle + " deg"
-// });
-
-// sizeSlider.addEventListener('input', () => {
-//     // size = e.target.value/100;
-//     size = sizeSlider.value/100;
-//     document.getElementById('sizeValue').value = size + "%"
-// });
-
-
-// // MODE SELECTOR
-
-// modeSelect.addEventListener('change', (e) => {
-
-//     mode = e.target.value;
-//     ctxH.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-//     var StrokeSizeEditor = document.getElementById('StrokeSizeEditor');
-//     var ColorEditor = document.getElementById('ColorEditor');
-
-//     if (mode === 'draw') {
-//         drawCanvas.style.cursor = 'crosshair';
-//         eraseCanvas.style.display = 'none';
-//         textCanvas.style.display = 'none';
-//         ColorEditor.style.display = 'block';
-//         StrokeSizeEditor.style.display = 'block';
-//     }
-
-//     if (mode === 'erase') {
-//         eraseCanvas.style.cursor = 'none';
-//         eraseCanvas.style.display = 'block';
-//         textCanvas.style.display = 'none';
-//         ColorEditor.style.display = 'none';
-//         StrokeSizeEditor.style.display = 'block';
-//     } else {
-//         eraseCanvas.style.display = 'none';
-//     }
-
-//     if (mode === 'text') {
-//         textCanvas.style.cursor = 'move';
-//         eraseCanvas.style.display = 'none';
-//         textCanvas.style.display = 'block';
-//         ColorEditor.style.display = 'block';
-//         StrokeSizeEditor.style.display = 'none';
-//         textEditor.style.display = 'block';
-//         document.getElementById("textAngleSlider").style.display = 'block';
-//     } else {
-//         textEditor.style.display = 'none';
-//         textCanvas.style.display = 'none';
-//         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-//         document.getElementById("textAngleSlider").style.display = 'none';
-//     }
-
-//     if (mode === 'addMedia') {
-//         mediaContainer.style.display = 'block';
-//         mediaCanvas.style.display = 'block';
-//         mediaCanvas.style.cursor = 'move';
-//         ColorEditor.style.display = 'none';
-//         StrokeSizeEditor.style.display = 'none';
-//     } else {
-//         mediaContainer.style.display = 'none';
-//         mediaCanvas.style.display = 'none';
-//         mediaCanvas.style.cursor = 'regular';
-//     }
-// });
+}
 
 // Draw the eraser square 
 function renderEraserSquare(x, y) {
     // if (showEraser == true) {
     let size = strokeSizeSlider.value * 2;
-    ctxH.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    // ctx.clearRect(x - size / 2, y - size / 2, size, size);
-    ctxH.save();
-    ctxH.globalCompositeOperation = 'source-over';
-    ctxH.fillStyle = 'white';
-    ctxH.strokeStyle = 'black';
-    ctxH.lineWidth = 1;
-    ctxH.fillRect(x - size / 2, y - size / 2, size, size);
-    ctxH.strokeRect(x - size / 2, y - size / 2, size, size);
-    ctxH.restore();
+    eraseCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    // drawCTX.clearRect(x - size / 2, y - size / 2, size, size);
+    eraseCTX.save();
+    eraseCTX.globalCompositeOperation = 'source-over';
+    eraseCTX.fillStyle = 'white';
+    eraseCTX.strokeStyle = 'black';
+    eraseCTX.lineWidth = 1;
+    eraseCTX.fillRect(x - size / 2, y - size / 2, size, size);
+    eraseCTX.strokeRect(x - size / 2, y - size / 2, size, size);
+    eraseCTX.restore();
     // }
 }
 
@@ -301,151 +401,31 @@ function drawLine(context, x1, y1, x2, y2) {
     console.log("drawing line: ", modeSelect.value)
 
     context.closePath();
-
 }
 
-// Text Editior
-
-textInput.addEventListener('input', renderTextPreview);
-fontSelector.addEventListener('change', renderTextPreview);
-fontType.addEventListener('change', renderTextPreview);
-fontSizeSelector.addEventListener('change', renderTextPreview);
-
-// ---------------mouse move event listener
-
-textCanvas.addEventListener('mousemove', (e) => {
-    if (mode === 'text') {
-        renderTextPreview(e);
-        // Display the mouse coordinates.
-        coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
-        mouseX = e.offsetX;
-        mouseY = e.offsetY;
-    }
+// Toolbox Text Editior Update Changes in Setting in Realtime
+textInput.addEventListener('input', () => {
+    renderTextPreview()
+});
+fontSelector.addEventListener('change', () => {
+    renderTextPreview()
+});
+fontType.addEventListener('change', () => {
+    renderTextPreview()
+});
+fontSizeSelector.addEventListener('change', () => {
+    renderTextPreview()
 });
 
-textCanvas.addEventListener('click', finalizeText);
 
-// // ----------Angle Slider control
-// textAngleSlider.addEventListener('input', () => {
-//     textAngleValue.value = textAngleSlider.value;
-// });
-// textAngleValue.addEventListener('input', () => {
-//     textAngleSlider.value = textAngleValue.value;
-// });
-
-// -----------rendering the text in real time at mouse position
-
-function renderTextPreview(e) {
-    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-    textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-    textCtx.fillStyle = colorPicker.value;
-    let x = e ? e.offsetX : textCanvas.width / 2;
-    let y = e ? e.offsetY : textCanvas.height / 2;
-    let angle = textAngleSlider.value;
-    textCtx.save(); //save the state of canvas
-    textCtx.translate(x, y); //let's translate
-    textCtx.rotate(angle * Math.PI / 180)
-    textCtx.translate(-x, -y); //let's translate
-    textCtx.fillText(textInput.value, x, y);
-    textCtx.restore(); //restore the state of canvas
-    // textCtx.rotate(-angle * Math.PI / 180)
-    // textAngleValue.innerText = textAngleSlider.value;
-}
-
-// -------print the text to the main canvas
-
-function finalizeText(e) {
-    if (mode === 'text') {
-        let angle = textAngleSlider.value;
-        ctx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-        ctx.fillStyle = colorPicker.value;
-
-        let x = e ? e.offsetX : textCanvas.width / 2;
-        let y = e ? e.offsetY : textCanvas.height / 2;
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angle * Math.PI / 180);
-        ctx.translate(-x, -y);
-        ctx.fillText(textInput.value, e.offsetX, e.offsetY);
-        textInput.value = "";
-        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        ctx.restore();
-    }
-}
-
-// Image Media Editor
-
-mediaCanvas.addEventListener('mousemove', (e) => {
-    if (mode === 'addMedia') {
-        // renderImagePreview();
-        // Display the mouse coordinates.
-        coordinatesDisplay.innerText = `${e.offsetX}, ${e.offsetY}`;
-        mouseX = e.offsetX;
-        mouseY = e.offsetY;
-    }
-});
-
-let moveMedia = false;
-
-// Click the canvas to move the Image to the mouse position
-mediaCanvas.addEventListener('mousedown', (e) => {
-    if (mode === 'addMedia') {
-
-        console.log("Mousedown");
-        moveMedia = true;
-
-        mediaCanvas.addEventListener('mousemove', (e) => {
-            if (moveMedia)
-                moveDMedia(e);
-        });
-
-        function moveDMedia(e) {
-            mouseX2 = e.offsetX;
-            mouseY2 = e.offsetY;
-            // renderImagePreview();
-            coordinatesDisplay2.innerText = `${e.offsetX}, ${e.offsetY}`;
-            console.log("Moveing Media");
-        }
-
-        mediaCanvas.addEventListener('mouseup', (e) => {
-            moveMedia = false;
-            console.log("Mouseup");
-        });
-
-    }
-});
-
-// clicking on this button will finalize the image and render it arcoss the stream on the selected stream
-let doneBtn = document.getElementById('doneBtn');
-doneBtn.addEventListener('click', finalizeImage);
-
-// let sendBtn = document.getElementById('sendBtn');
-// sendBtn.addEventListener('click', () => {
-//     ctxVal = !ctxVal
-//     if (ctxVal)
-//         sendBtn.style.background = "lightblue";
-//     else
-//         sendBtn.style.background = "lightgrey";
-// });
-
-// let videoBackBtn = document.getElementById('videoBackBtn');
-// videoBackBtn.addEventListener('click', () => {
-//     mediaDisplay.style.display = "block";
-//     bvd.style.display = "none";
-// });
 
 function renderImagePreview() {
     if (mediaLink != "") {
         // draw the media object
         if (mediaType === 'image') {
-            mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-            // textCtx.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-            // textCtx.fillStyle = colorPicker.value;
-            // let x = e ? e.offsetX : mediaCanvas.width / 2;
-            // let y = e ? e.offsetY : mediaCanvas.height / 2;
+            mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
 
-            base_image = new Image();
+            let base_image = new Image();
             base_image.src = './media/image/' + mediaLink;
             let sSize = sizeSlider.value;
             let angle = angleSlider.value;
@@ -453,76 +433,56 @@ function renderImagePreview() {
             let height = sSize / 100 * base_image.height;
 
             // translate and rotate the canvas so that the image is centered
-            mediaCtx.save();
-            mediaCtx.translate(mouseX2, mouseY2);
-            mediaCtx.rotate(angle * Math.PI / 180);
-            mediaCtx.translate(-mouseX2, -mouseY2);
+            mediaCTX.save();
+            mediaCTX.translate(mouseX2, mouseY2);
+            mediaCTX.rotate(angle * Math.PI / 180);
+            mediaCTX.translate(-mouseX2, -mouseY2);
 
             // draw the "edit image" background behind the media object
-            if (Math.floor(time / 10) % 2) mediaCtx.strokeStyle = '#ff0000';
-            else mediaCtx.strokeStyle = '#000000';
-            mediaCtx.globalAlpha = .4;
-            mediaCtx.shadowColor = "#d53";
-            mediaCtx.shadowBlur = 20;
-            mediaCtx.lineJoin = "round";
-            mediaCtx.lineWidth = 5;
-            // mediaCtx.strokeStyle = "#38f";
-            mediaCtx.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
-            mediaCtx.globalAlpha = 1;
+            if (Math.floor(time / 10) % 2) mediaCTX.strokeStyle = '#ff0000';
+            else mediaCTX.strokeStyle = '#000000';
+            mediaCTX.globalAlpha = .4;
+            mediaCTX.shadowColor = "#d53";
+            mediaCTX.shadowBlur = 20;
+            mediaCTX.lineJoin = "round";
+            mediaCTX.lineWidth = 5;
+            // mediaCTX.strokeStyle = "#38f";
+            mediaCTX.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
+            mediaCTX.globalAlpha = 1;
 
             // draw the image
-            mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-            mediaCtx.restore();
+            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            mediaCTX.restore();
         }
         if (mediaType === 'audio') {
-            mediaCtx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-            base_image = new Image();
+            mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
+            let base_image = new Image();
             base_image.src = './media/image/soundIcon.png';
             let sSize = sizeSlider.value;
             let angle = angleSlider.value;
             let width = sSize / 100 * base_image.width;
             let height = sSize / 100 * base_image.height;
-            // mediaCtx.rotate(angle * Math.PI / 180);
-            mediaCtx.save();
-            mediaCtx.translate(mouseX2, mouseY2);
-            mediaCtx.rotate(angle * Math.PI / 180);
-            mediaCtx.translate(-mouseX2, -mouseY2);
+            // mediaCTX.rotate(angle * Math.PI / 180);
+            mediaCTX.save();
+            mediaCTX.translate(mouseX2, mouseY2);
+            mediaCTX.rotate(angle * Math.PI / 180);
+            mediaCTX.translate(-mouseX2, -mouseY2);
 
             // draw the "edit image" background behind the media object
-            if (Math.floor(time / 10) % 2) mediaCtx.strokeStyle = '#ff0000';
-            else mediaCtx.strokeStyle = '#000000';
-            mediaCtx.globalAlpha = .4;
-            mediaCtx.shadowColor = "#d53";
-            mediaCtx.shadowBlur = 20;
-            mediaCtx.lineJoin = "round";
-            mediaCtx.lineWidth = 5;
-            // mediaCtx.strokeStyle = "#38f";
-            mediaCtx.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 14, height + 14);
-            mediaCtx.globalAlpha = 1;
-            mediaCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            if (Math.floor(time / 10) % 2) mediaCTX.strokeStyle = '#ff0000';
+            else mediaCTX.strokeStyle = '#000000';
+            mediaCTX.globalAlpha = .4;
+            mediaCTX.shadowColor = "#d53";
+            mediaCTX.shadowBlur = 20;
+            mediaCTX.lineJoin = "round";
+            mediaCTX.lineWidth = 5;
+            // mediaCTX.strokeStyle = "#38f";
+            mediaCTX.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 14, height + 14);
+            mediaCTX.globalAlpha = 1;
+            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
 
-            // mediaCtx.rotate(-angle * Math.PI / 180);
-            mediaCtx.restore();
-        }
-        if (mediaType === 'video') {
-
-
-            // base_video.addEventListener("ended", () => {
-            //     // if (base_video.playing) { // checks if element is playing right now
-            //     //     // Do anything you want to
-            //     //     if (base_video.ended)
-            //     //         base_video.play();
-            //     // } else {
-            //     //     base_video.play();
-            //     // }
-            //     // let loop = document.getElementById('medialoop').checked
-            //     // if (loop) {
-            //     base_video.play();
-            //     // console.log("replaying video")
-            //     // }
-            // });
-            // base_video.play();
-            // drawVideo();
+            // mediaCTX.rotate(-angle * Math.PI / 180);
+            mediaCTX.restore();
         }
     }
 }
@@ -530,7 +490,6 @@ function renderImagePreview() {
 function drawVideo(ctx) {
     base_video.addEventListener('play', function () {
         var $this = this; //cache
-
         (function loop() {
             if (!$this.paused && !$this.ended) {
                 angle = angleSlider.value
@@ -538,7 +497,7 @@ function drawVideo(ctx) {
                 let width = sizeHSlider.value / 50 * 320;
                 let height = sizeVSlider.value / 50 * 240;
                 ctx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-                // mediaCtx.drawImage($this, 0, 0, 120, 80);
+                // mediaCTX.drawImage($this, 0, 0, 120, 80);
                 ctx.save();
                 ctx.translate(mouseX2, mouseY2);
                 ctx.rotate(angle * Math.PI / 180);
@@ -546,9 +505,9 @@ function drawVideo(ctx) {
 
                 // draw the "edit image" background behind the media object
                 if (Math.floor(time / 10) % 2)
-                    mediaCtx.fillStyle = '#ff0000';
+                    mediaCTX.fillStyle = '#ff0000';
                 else
-                    mediaCtx.fillStyle = '#000000';
+                    mediaCTX.fillStyle = '#000000';
 
                 ctx.globalAlpha = .4;
                 ctx.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
@@ -565,41 +524,35 @@ function drawVideo(ctx) {
 }
 
 //update media canvas preview at 30 fps
-setInterval(() => {
-    renderImagePreview();
+let mediaCTXRender = setInterval(() => {
+    renderImagePreview(mediaCTX);
 }, 1000 / 30)
 
-function finalizeImage(e) {
+//update media canvas preview at 30 fps
+let textCTXRender = setInterval(() => {
+    renderTextPreview(textCTX);
+}, 1000 / 30)
+
+function finalizeImage() {
     if (mode === 'addMedia') {
         if (mediaType === 'image') {
-            mediaCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-            base_image = new Image();
+            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            let base_image = new Image();
             base_image.src = './media/image/' + mediaLink;
-
-            // let x = e ? e.offsetX : mediaCanvas.width / 2;
-            // let y = e ? e.offsetY : mediaCanvas.height / 2;
-
 
             let sSize = sizeSlider.value;
             let angle = angleSlider.value;
             let width = sSize / 100 * base_image.width;
             let height = sSize / 100 * base_image.height;
 
-            // // pick the right canvas to draw on
-            // let ctx
-            // if (ctxVal == false)
-            //     ctx = drawCanvas.getContext("2d");
-            // else
-            //     ctx = tempMediaCanvas.getContext("2d");
-
-            ctx.save();
-            ctx.translate(mouseX2, mouseY2);
-            ctx.rotate(angle * Math.PI / 180);
-            ctx.translate(-mouseX2, -mouseY2);
-            ctx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-            ctx = `12px ${fontSelector.value}`;
-            ctx.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
-            ctx.restore();
+            drawCTX.save();
+            drawCTX.translate(mouseX2, mouseY2);
+            drawCTX.rotate(angle * Math.PI / 180);
+            drawCTX.translate(-mouseX2, -mouseY2);
+            drawCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            drawCTX = `12px ${fontSelector.value}`;
+            drawCTX.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
+            drawCTX.restore();
 
             clearMediaPreviewDiv();
 
@@ -608,7 +561,7 @@ function finalizeImage(e) {
         }
 
         if (mediaType === 'audio') {
-            mediaCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
             base_image = new Image();
             base_image.src = './media/image/soundIcon.png';
 
@@ -619,14 +572,14 @@ function finalizeImage(e) {
             let height = VSize / 100 * 128;
 
             //Draw sound icon
-            mcfCtx.save();
-            mcfCtx.translate(mouseX2, mouseY2);
-            mcfCtx.rotate(angle * Math.PI / 180);
-            mcfCtx.translate(-mouseX2, -mouseY2);
-            mcfCtx.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            mediaCTX.save();
+            mediaCTX.translate(mouseX2, mouseY2);
+            mediaCTX.rotate(angle * Math.PI / 180);
+            mediaCTX.translate(-mouseX2, -mouseY2);
+            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             font = `12px ${fontSelector.value}`;
             ctx.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
-            mcfCtx.restore();
+            mediaCTX.restore();
 
             var sound = new Audio();
             sound.src = './media/audio/' + mediaLink;
@@ -639,7 +592,7 @@ function finalizeImage(e) {
             // tempMediaCanvas.dis
 
             let drawPermVideo = setInterval(() => {
-                drawVideo(ctxMCF)
+                drawVideo(tempMediaCTX)
             }, 1000 / 30);
 
             setTimeout(() => {
@@ -656,12 +609,13 @@ function clearMediaAfterTimeout(ctx, width, height) {
     if (val == "") {
         val = 5;
     }
-    setTimeout(function () {
+    let timeTillDelete = setTimeout(function () {
         console.log('clearMediaAfterTimeout: ', val);
         ctx.clearRect(mouseX2 - width / 2, mouseY2 - height / 2, width, height);
     }, val * 1000)
 }
 
+// Clear out the search term and results in the toolbox
 function clearMediaPreviewDiv() {
     // Clear all the image in the display div
     document.querySelectorAll('#list').forEach(item => {
