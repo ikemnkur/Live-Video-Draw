@@ -69,7 +69,7 @@ function canvas2videoF() {
   // Then draw the main canvas (drawing) on top of that.
   temporaryCtx.drawImage(videoCanvas, 0, 0);
   // Then draw the main canvas (drawing) on top of that.
-  temporaryCtx.drawImage(mediaCanvasFloat, 0, 0);
+  temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
   // Then draw the main canvas (drawing) on top of that.
   temporaryCtx.drawImage(drawCanvas, 0, 0);
 
@@ -79,7 +79,7 @@ function canvas2videoF() {
 
 setInterval(() => {
   canvas2videoF();
-}, 1000/30);
+}, 1000 / 30);
 
 let myVideoStream = temporaryCanvas.captureStream(30);
 
@@ -104,19 +104,20 @@ navigator.mediaDevices
       });
     });
 
-    socket.on("user-connected", (userId) => {
+    socket.on("user-connected", (userId, userName) => {
       connectToNewUser(userId, stream);
+      newUsername = userName;
     });
   });
 
+// temporarily store the name of the last user to join the video chat call.
 let newUsername = ""
 
 const connectToNewUser = (userId, stream) => {
   console.log('I call someone' + userId);
   const call = peer.call(userId, stream);
   const video = document.createElement("video");
-  video.id = userId+ "#video";
-  newUsername = userId;
+  video.id = userId + "#video";
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
   });
@@ -133,16 +134,21 @@ const addVideoStream = (video, stream) => {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    let liveVideoTemp = document.getElementById("liveVideo");
-    let liveVideo = liveVideoTemp.cloneNode(true);
-    liveVideo.id = liveVideo.id + "#" + newUsername;
-    var children = liveVideo.children;
-    for(var i=0; i<children.length; i++){
-        var child = children[i];
-        child.id = child.id + "#" + newUsername;
-    }
-    liveVideo.children[0].srcObject = stream;
-    videoGrid.append(liveVideo);
+    // let liveVideoTemp = document.getElementById("liveVideo");
+    // let liveVideo = liveVideoTemp.cloneNode(true);
+    // liveVideo.id = liveVideo.id + "#" + newUsername;
+    // var children = liveVideo.children;
+    // for (var i = 0; i < children.length; i++) {
+    //   var child = children[i];
+    //   child.id = child.id + "#" + newUsername;
+    // }
+    // liveVideo.children[0].play();
+    // liveVideo.children[0].srcObject = stream;
+
+    var videoObj = new liveVideoObj();
+    videoObj.createElements()
+    videoObj.updateCanvas()
+    videoGrid.append(videoObj.renderElement());
     videoGrid.append(video);
   });
 };
@@ -214,3 +220,66 @@ socket.on("createMessage", (message, userName) => {
         <span>${message}</span>
     </div>`;
 });
+
+
+class liveVideoObj {
+  constructor() {
+    this.property = "I'm a property";
+    let liveVideoTemp = document.getElementById("liveVideo");
+    this.liveVideo = liveVideoTemp.cloneNode(true);
+    this.temporaryCanvas = document.createElement('canvas');
+    this.temporaryCtx = temporaryCanvas.getContext('2d');
+    this.myVideoStream = temporaryCanvas.captureStream(25);
+  }
+  method() {
+    console.log("Hello, I'm a method!");
+  }
+
+  canvas2video(videoCanvas, tempMediaCanvas, drawCanvas) {
+    temporaryCanvas.width = video.videoWidth;
+    temporaryCanvas.height = video.videoHeight;
+
+    // // Draw the video frame to the temporary drawCanvas.
+    // temporaryCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    // Then draw the main canvas (drawing) on top of that.
+    temporaryCtx.drawImage(videoCanvas, 0, 0);
+    // Then draw the main canvas (drawing) on top of that.
+    temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
+    // Then draw the main canvas (drawing) on top of that.
+    temporaryCtx.drawImage(drawCanvas, 0, 0);
+
+    // let myVideoStream = temporaryCanvas.captureStream(25);
+  }
+
+  updateCanvas(){
+    let videoCanvas = this.liveVideo.children[1];
+    let tempMediaCanvas = this.liveVideo.children[2]; 
+    let drawCanvas = this.liveVideo.children[3];
+    this.updates = setInterval(() => {
+      this.canvas2video(videoCanvas, tempMediaCanvas, drawCanvas);
+    }, 1000 / 30);
+  }
+
+  createElements(){
+
+    // let liveVideoTemp = document.getElementById("liveVideo");
+    // let liveVideo = liveVideoTemp.cloneNode(true);
+    this.liveVideo.id = this.liveVideo.id + "#" + newUsername;
+    var children = this.liveVideo.children;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      child.id = child.id + "#" + newUsername;
+    }
+    
+    this.liveVideo.children[0].srcObject = stream;
+    this.liveVideo.children[0].play();
+  }
+
+  renderElement(){
+    return this.liveVideo;
+  }
+}
+
+const obj = new liveVideoObj();
+console.log(obj.property);
+obj.method();

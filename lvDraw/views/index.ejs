@@ -237,7 +237,7 @@
                         <div id="liveVideo" class="canvas-container">
                             <video id="video" autoplay playsinline style="display: none;"></video>
                             <canvas id="videoCanvas"></canvas>
-                            <canvas id="mediaCanvasFloat"></canvas>
+                            <canvas id="tempMediaCanvas"></canvas>
                             <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
                             <canvas id="eraseCanvas" style="display: none;"></canvas>
                             <canvas id="textCanvas" style="display: none;"></canvas>
@@ -291,8 +291,6 @@
         </div>
     </div>
 
-    <!-- <title>W3.CSS</title> -->
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <div class="w3-container">
@@ -353,7 +351,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <p>Some text..</p>? -->
                 </div>
                 <footer class="w3-container w3-teal">
                     <p>Modal Footer</p>
@@ -369,6 +366,7 @@
 </body>
 
 <script src="getAVsource.js"></script>
+<script src="toolbox.js"></script>
 <script src="draw.js"></script>
 <script src="script.js"></script>
 
