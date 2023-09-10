@@ -58,25 +58,19 @@ var peer = new Peer({
 
 let temporaryCanvas = document.createElement('canvas');
 let temporaryCtx = temporaryCanvas.getContext('2d');
+temporaryCanvas.width = video.videoWidth;
+temporaryCanvas.height = video.videoHeight;
+
 
 function canvas2videoF() {
-  // let temporaryCanvas = document.createElement('canvas');
-  // let temporaryCtx = temporaryCanvas.getContext('2d');
-
-  temporaryCanvas.width = video.videoWidth;
-  temporaryCanvas.height = video.videoHeight;
-
-  // // Draw the video frame to the temporary drawCanvas.
-  // temporaryCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-  // Then draw the main canvas (drawing) on top of that.
-  temporaryCtx.drawImage(videoCanvas, 0, 0);
-  // Then draw the main canvas (drawing) on top of that.
-  temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
-  // Then draw the main canvas (drawing) on top of that.
-  temporaryCtx.drawImage(drawCanvas, 0, 0);
-
-  // let myVideoStream = temporaryCanvas.captureStream(25);
-  // return myVideoStream;
+  if (videoCanvas != undefined) {
+    // // Draw the video frame to the temporary drawCanvas.
+    temporaryCtx.drawImage(videoCanvas, 0, 0);
+    // Then draw the temporary media like videos on top of that.
+    temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
+    // Then draw the main canvas (drawings) on top of that.
+    temporaryCtx.drawImage(mainCanvas, 0, 0);
+  }
 }
 
 setInterval(() => {
@@ -134,17 +128,6 @@ const addVideoStream = (video, stream) => {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    // let liveVideoTemp = document.getElementById("liveVideo");
-    // let liveVideo = liveVideoTemp.cloneNode(true);
-    // liveVideo.id = liveVideo.id + "#" + newUsername;
-    // var children = liveVideo.children;
-    // for (var i = 0; i < children.length; i++) {
-    //   var child = children[i];
-    //   child.id = child.id + "#" + newUsername;
-    // }
-    // liveVideo.children[0].play();
-    // liveVideo.children[0].srcObject = stream;
-
     var videoObj = new liveVideoObj();
     videoObj.createElements()
     videoObj.updateCanvas()
@@ -225,24 +208,27 @@ socket.on("createMessage", (message, userName) => {
 class liveVideoObj {
   constructor() {
     this.property = "I'm a property";
-    let liveVideoTemp = document.getElementById("liveVideo");
+    let liveVideoTemp = document.getElementById("myLiveVideoDIV");
     this.liveVideo = liveVideoTemp.cloneNode(true);
     this.liveVideo.id = this.liveVideo.id + "#" + newUsername;
 
     this.temporaryCanvas = document.createElement('canvas');
     this.temporaryCtx = temporaryCanvas.getContext('2d');
-
+    temporaryCanvas.width = video.videoWidth;
+    temporaryCanvas.height = video.videoHeight;
     this.myVideoStream = temporaryCanvas.captureStream(25);
 
     this.video = this.liveVideo.children[0];
     this.videoCanvas = this.liveVideo.children[1];
-    this.tempMediaCanvas = this.liveVideo.children[2];
-    this.drawCanvas = this.liveVideo.children[3];
-    this.eraseCanvas = this.liveVideo.children[4];
-    this.textCanvas = this.liveVideo.children[5];
-    this.mediaCanvas = this.liveVideo.children[6];
+    this.mainCanvas = this.liveVideo.children[2];
+    this.tempMediaCanvas = this.liveVideo.children[3];
+    this.drawCanvas = this.liveVideo.children[4];
+    this.eraseCanvas = this.liveVideo.children[5];
+    this.textCanvas = this.liveVideo.children[6];
+    this.mediaCanvas = this.liveVideo.children[7];
 
     this.videoCTX = this.videoCanvas.getContext('2d');
+    this.mainCTX = this.mainCanvas.getContext('2d');
     this.drawCTX = this.drawCanvas.getContext('2d');
     this.eraseCTX = this.eraseCanvas.getContext('2d');
     this.textCTX = this.textCanvas.getContext('2d');
@@ -275,19 +261,12 @@ class liveVideoObj {
   }
 
   canvas2video(videoCanvas, tempMediaCanvas, drawCanvas) {
-    temporaryCanvas.width = video.videoWidth;
-    temporaryCanvas.height = video.videoHeight;
-
-    // // Draw the video frame to the temporary drawCanvas.
-    // temporaryCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    // Then draw the main canvas (drawing) on top of that.
+    // Draw the video frame to the temporary drawCanvas.
     temporaryCtx.drawImage(videoCanvas, 0, 0);
     // Then draw the main canvas (drawing) on top of that.
     temporaryCtx.drawImage(tempMediaCanvas, 0, 0);
     // Then draw the main canvas (drawing) on top of that.
     temporaryCtx.drawImage(drawCanvas, 0, 0);
-
-    // let myVideoStream = temporaryCanvas.captureStream(25);
   }
 
   updateCanvas() {
@@ -298,9 +277,6 @@ class liveVideoObj {
   }
 
   createElements() {
-    // let liveVideoTemp = document.getElementById("liveVideo");
-    // let liveVideo = liveVideoTemp.cloneNode(true);
-
     var children = this.liveVideo.children;
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
@@ -314,7 +290,6 @@ class liveVideoObj {
   renderElement() {
     return this.liveVideo;
   }
-
 
 
 }

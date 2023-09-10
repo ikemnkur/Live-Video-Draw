@@ -41,17 +41,22 @@
             <button id="saveCanvas">Save Drawing</button>
             <button id="saveScreenshot">Save Screenshot</button><br />
 
-            <text>Mouse Position: <span id="coordinates">0, 0</span></text><br>
-            <text>Mouse Down Position: <span id="coordinates2">0, 0</span></text><br>
+            <div id="mousePositions">
+                <text>Mouse Position: <span id="coordinates">0, 0</span></text><br>
+                <text>Mouse Down Position: <span id="coordinates2">0, 0</span></text><br>
+            </div>
 
-            <label for="mode">Mode: </label>
-            <select id="mode">
-                <option value="draw">Draw</option>
-                <option value="erase">Erase</option>
-                <option value="text">Text</option>
-                <option value="addMedia">Add Media</option>
-                <option value="editLiveVideo">Edit Live Video</option>
-            </select><br />
+            <div style="margin-top: 5px;">
+                <label for="mode">Mode: </label>
+                <select id="mode">
+                    <option value="view">View</option>
+                    <option value="draw" selected>Draw</option>
+                    <option value="erase">Erase</option>
+                    <option value="text">Text</option>
+                    <option value="addMedia">Add Media</option>
+                    <option value="editLiveVideo">Your Live Video</option>
+                </select><br />
+            </div>
 
             <div id="ColorEditor">
                 <label for="color">Color: </label>
@@ -61,6 +66,12 @@
             <div id="StrokeSizeEditor">
                 <label for="stroke-size">Stroke size: </label>
                 <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
+            </div>
+
+            <div id="eraseObjSelector">
+                <label>Erase Mode:</label>
+                <input type="radio" name="mediaMode" id="eraseDrawing"> Drawing
+                <input type="radio" name="mediaMode" id="eraseAll" checked> Background
             </div>
 
             <div id="TextEditor" style="display: none;">
@@ -131,9 +142,9 @@
                     <span class="searchIcon">&#128269;</span>
                     <input id="searchBar" type="text" placeholder="Search...">
                     <button id="goButton" class="searchbtn" style="padding: 3px;
-                margin: 3px;">Go</button>
+                        margin: 3px;">Go</button>
                     <button id="removeButton" class="searchbtn" style="display: none; padding: 3px;
-                margin: 3px;">Delete</button>
+                        margin: 3px;">Delete</button>
                 </div>
 
                 <!-- <div > -->
@@ -144,22 +155,14 @@
                     </div>
                 </div>
                 <div id="base_video_div_" style="display: none;">
-                    <!-- <div id="base_video_div_header">Click here to move</div> -->
-                    <video id="base_video" src="media/video/Loading.mp4"></video>
-                    <!-- <audio id="base_audio" controls>
-                    <source src="./media/audio/Android-meme-djlunatique.com.mp3">
-                     <source src="./media/audio/" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio> -->
+                    <video id="base_video" class="base_video" src="media/video/Loading.mp4"></video>
                     <button id="playPauseBtn">Pause</button>
                     <button id="videoBackBtn">Back</button>
                 </div>
 
-                <!-- </div> -->
                 <div class="mediaSettings" id="audioVideoSettings" style="display: none;">
                     <audio id="base_audio" controls>
                         <source src="./media/audio/Android-meme-djlunatique.com.mp3">
-                        <!-- <source src="./media/audio/" type="audio/mpeg"> -->
                         Your browser does not support the audio element.
                     </audio>
                     <div style="display: none;">
@@ -184,23 +187,23 @@
                 <div class="mediaSettings" id="imageSettings">
                     <div style="display: flex;">
                         <label>Horiz. Size:</label>
-                        <input id="sizeHSlider" type="range" min="10" max="100" value="25">
-                        <textarea id="sizeHValue">25</textarea>%
+                        <input id="sizeHSlider" type="range" min="10" max="50" value="25">
+                        <textarea id="sizeHValue" style="resize: none;">25</textarea>%
                     </div>
                     <div style="display: flex;">
                         <label>Verti. Size:</label>
-                        <input id="sizeVSlider" type="range" min="10" max="100" value="25">
-                        <textarea id="sizeVValue">25</textarea>%
+                        <input id="sizeVSlider" type="range" min="10" max="50" value="25">
+                        <textarea id="sizeVValue" style="resize: none;">25</textarea>%
                     </div>
                     <div style="display: none;">
                         <label>Size:</label>
-                        <input id="sizeSlider" type="range" min="10" max="100" value="25">
-                        <textarea id="sizeValue">25</textarea>%
+                        <input id="sizeSlider" type="range" min="10" max="50" value="25">
+                        <textarea id="sizeValue" style="resize: none;">25</textarea>%
                     </div>
                     <div style="display: flex;">
                         <label>Angle:</label>
                         <input id="angleSlider" type="range" min="-180" max="180" value="0">
-                        <textarea id="angleValue">0</textarea> °
+                        <textarea id="angleValue" style="resize: none;">0</textarea> °
                     </div>
                     <div id="timeDiv" style="display: flex;">
                         <label>Time: </label>
@@ -209,7 +212,12 @@
                     </div>
                 </div>
             </div>
-            <div id="sumbitDrawing">
+
+            <div id="userVideoPreviewDiv" class="base_video" style="display: none;">
+                <video id="userVideoPreview" src="" style="margin: 5px;" width="320"></video>
+            </div>
+
+            <div id="submitDrawing">
                 <button id="doneBtn" style="float: left;">Done</button>
                 <button id="libraryBtn" style="margin-left: 55px;">Add to Library</button>
                 <button id="sendBtn" style="float: right;">Send</button>
@@ -234,19 +242,17 @@
                 <div id="video-grid">
 
                     <!-- <div class="parent"> -->
-                    <div id="liveVideo" class="canvas-container">
-                        <video id="video" autoplay playsinline style="display: none;"></video>
+                    <div id="myLiveVideoDIV" class="canvas-container">
+                        <video id="video" autoplay playsinline style="display: none;" width="320"></video>
                         <canvas id="videoCanvas"></canvas>
                         <canvas id="tempMediaCanvas"></canvas>
+                        <canvas id="mainCanvas" style="cursor: default;"></canvas>
                         <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
                         <canvas id="eraseCanvas" style="display: none;"></canvas>
-                        
                         <canvas id="mediaCanvas" style="display: none;"></canvas>
                         <canvas id="textCanvas" style="display: none;"></canvas>
                     </div>
                     <!-- </div> -->
-
-
 
                 </div>
             </div>
@@ -295,8 +301,6 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <div class="w3-container">
-
-
         <div id="id01" class="w3-modal">
             <div class="w3-modal-content w3-animate-top w3-card-4">
                 <header class="w3-container w3-teal">
@@ -362,14 +366,11 @@
         </div>
     </div>
 
-
-
 </body>
 
 <script src="getAVsource.js"></script>
 <script src="toolbox.js"></script>
 <script src="draw.js"></script>
 <script src="script.js"></script>
-
 
 </html>

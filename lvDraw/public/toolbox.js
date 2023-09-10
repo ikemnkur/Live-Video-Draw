@@ -163,6 +163,24 @@ saveScreenshotButton.addEventListener('click', () => {
     link.click();
 });
 
+var userVideoPreviewDiv = document.getElementById('userVideoPreviewDiv');
+var userVideoPreview = document.getElementById('userVideoPreview');
+// Accessing the user camera and video.
+navigator.mediaDevices
+    .getUserMedia({
+        video: true,
+        audio: true,
+    })
+    .then((stream) => {
+
+        // Changing the source of video to current stream.
+        userVideoPreview.srcObject = stream;
+        userVideoPreview.addEventListener("loadedmetadata", () => {
+            userVideoPreview.play();
+        });
+    })
+    .catch(alert);
+
 // MODE SELECTOR
 // This drop down menu is used to select the draw mode: draw, erase, add media, etc.
 modeSelect.addEventListener('change', (e) => {
@@ -171,8 +189,28 @@ modeSelect.addEventListener('change', (e) => {
     eraseCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     var StrokeSizeEditor = document.getElementById('StrokeSizeEditor');
     var ColorEditor = document.getElementById('ColorEditor');
+    var submitButtons = document.getElementById('submitDrawing');
+    var mousePositions = document.getElementById('mousePositions');
+    // var userVideoPreviewDiv = document.getElementById('userVideoPreviewDiv');
+    // var userVideoPreview = document.getElementById('userVideoPreview');
+
+    if (mode === 'view') {
+        submitButtons.style.display = 'none';
+        drawCanvas.style.display = 'none';
+        mainCanvas.style.cursor = 'default';
+        eraseCanvas.style.display = 'none';
+        textCanvas.style.display = 'none';
+        ColorEditor.style.display = 'none';
+        StrokeSizeEditor.style.display = 'none';
+        mousePositions.style.display = 'none';
+        StrokeSizeEditor.style.display = 'none';
+    } else {
+        submitButtons.style.display = 'block';
+        mousePositions.style.display = 'block';
+    }
 
     if (mode === 'draw') {
+        drawCanvas.style.display = 'block';
         drawCanvas.style.cursor = 'crosshair';
         eraseCanvas.style.display = 'none';
         textCanvas.style.display = 'none';
@@ -181,6 +219,7 @@ modeSelect.addEventListener('change', (e) => {
     }
 
     if (mode === 'erase') {
+        drawCanvas.style.display = 'block';
         eraseCanvas.style.cursor = 'none';
         eraseCanvas.style.display = 'block';
         textCanvas.style.display = 'none';
@@ -216,6 +255,26 @@ modeSelect.addEventListener('change', (e) => {
         mediaCanvas.style.display = 'none';
         mediaCanvas.style.cursor = 'regular';
     }
+
+    if (mode === 'editLiveVideo') {
+        submitButtons.style.display = 'none';
+        drawCanvas.style.display = 'none';
+        mainCanvas.style.cursor = 'default';
+        eraseCanvas.style.display = 'none';
+        textCanvas.style.display = 'none';
+        ColorEditor.style.display = 'none';
+        StrokeSizeEditor.style.display = 'none';
+        mousePositions.style.display = 'none';
+        StrokeSizeEditor.style.display = 'none';
+        userVideoPreviewDiv.style.display = 'block';
+        userVideoPreview.muted = false;
+    } else {
+        submitButtons.style.display = 'block';
+        mousePositions.style.display = 'block';
+        userVideoPreviewDiv.style.display = 'none';
+        userVideoPreview.muted = true;
+    }
+
 });
 
 // Text Editior
