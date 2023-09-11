@@ -556,6 +556,8 @@ let textCTXRender = setInterval(() => {
     renderTextPreview(textCTX);
 }, 1000 / 30)
 
+let mediaMessage = document.getElementById('mediaMessage');
+
 function finalizeImage() {
     if (mode === 'addMedia') {
         if (mediaType === 'image') {
@@ -574,11 +576,12 @@ function finalizeImage() {
             mainCTX.translate(-mouseX2, -mouseY2);
             mainCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mainCTX.font = `12px ${fontSelector.value}`;
-            mainCTX.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
+            mediaCTX.fillStyle = '#FFFFFF'
+            mainCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 + 5);
             mainCTX.restore();
 
             clearMediaPreviewDiv();
-
+            mediaMessage.value = '';
             // clear the drawn image on the canvas after timeVal seconds
             // clearMediaAfterTimeout(ctx, width, height);
         }
@@ -601,7 +604,8 @@ function finalizeImage() {
             mediaCTX.translate(-mouseX2, -mouseY2);
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.font = `12px ${fontSelector.value}`;
-            mediaCTX.fillText(mediaLink, mouseX2, mouseY2 - height / 2 - 5);
+            mediaCTX.fillStyle = '#FFFFFF'
+            mediaCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 - 5);
             mediaCTX.restore();
 
             var sound = new Audio();
@@ -609,6 +613,7 @@ function finalizeImage() {
             sound.play()
 
             clearMediaPreviewDiv();
+            mediaMessage.value = '';
         }
 
         if (mediaType == 'video') {

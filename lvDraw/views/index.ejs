@@ -68,12 +68,7 @@
                 <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
             </div>
 
-            <div id="eraseObjSelector">
-                <label>Erase Mode:</label>
-                <input type="radio" name="mediaMode" id="eraseDrawing"> Drawing
-                <input type="radio" name="mediaMode" id="eraseAll" checked> Background
-            </div>
-
+           
             <div id="TextEditor" style="display: none;">
                 <div>
                     <label for="textInput">Text: </label>
@@ -154,6 +149,7 @@
 
                     </div>
                 </div>
+                
                 <div id="base_video_div_" style="display: none;">
                     <video id="base_video" class="base_video" src="media/video/Loading.mp4"></video>
                     <button id="playPauseBtn">Pause</button>
@@ -185,6 +181,12 @@
                 </div>
 
                 <div class="mediaSettings" id="imageSettings">
+                    <div id="eraseObjSelector">
+                        <label>Edit Mode:</label>
+                        <input type="radio" name="mediaMode" id="advancedEdits"> Advacing
+                        <input type="radio" name="mediaMode" id="simpleEdits" checked> Simple
+                    </div>
+        
                     <div style="display: flex;">
                         <label>Horiz. Size:</label>
                         <input id="sizeHSlider" type="range" min="10" max="50" value="25">
@@ -204,6 +206,10 @@
                         <label>Angle:</label>
                         <input id="angleSlider" type="range" min="-180" max="180" value="0">
                         <textarea id="angleValue" style="resize: none;">0</textarea> °
+                    </div>
+                    <div id="messageDiv" style="display: flex;">
+                        <label>Text: </label>
+                        <input id="mediaMessage"></input>
                     </div>
                     <div id="timeDiv" style="display: flex;">
                         <label>Time: </label>

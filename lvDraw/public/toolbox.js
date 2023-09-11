@@ -127,7 +127,7 @@ openToolboxBtn.addEventListener("click", () => {
 
 //clicking on this button will clear the selected canvases
 clearButton.addEventListener('click', () => {
-    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    mainCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 });
 
 // Save the canvas image

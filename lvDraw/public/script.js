@@ -2,10 +2,10 @@
 
 const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
-const myVideo = document.createElement("video");
+// const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 const backBtn = document.querySelector(".header__back");
-myVideo.muted = true;
+// myVideo.muted = true;
 
 backBtn.addEventListener("click", () => {
   document.querySelector(".main__left").style.display = "flex";
@@ -79,7 +79,6 @@ setInterval(() => {
 
 let myVideoStream = temporaryCanvas.captureStream(30);
 
-// let myVideoStream;
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
@@ -90,11 +89,13 @@ navigator.mediaDevices
     // addVideoStream(myVideo, stream);
     // videoGrid.append(document.getElementById("liveVideo"))
 
+    // add someone else's video stream to videoGrid
     peer.on("call", (call) => {
       console.log('someone call me');
       call.answer(stream);
       const video = document.createElement("video");
       video.id = "otherVideo";
+      console.log("im last to join");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
       });
@@ -113,7 +114,9 @@ const connectToNewUser = (userId, stream) => {
   console.log('I call someone' + userId);
   const call = peer.call(userId, stream);
   const video = document.createElement("video");
-  video.id = userId + "#video";
+  video.id = newUsername + "#video";
+  console.log("im first to join");
+  console.log(newUsername + " joined")
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
   });
@@ -124,17 +127,21 @@ peer.on("open", (id) => {
   socket.emit("join-room", ROOM_ID, id, user);
 });
 
+
+
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    var videoObj = new liveVideoObj();
-    videoObj.createElements()
-    videoObj.updateCanvas()
-    videoGrid.append(videoObj.renderElement());
+    // var videoObj = new liveVideoObj();
+    // videoObj.createElements()
+    // videoObj.updateCanvas()
+    // videoGrid.append(videoObj.renderElement());
     videoGrid.append(video);
   });
 };
+
+
 
 let text = document.querySelector("#chat_message");
 let send = document.getElementById("send");
