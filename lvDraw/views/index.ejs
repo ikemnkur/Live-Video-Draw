@@ -19,16 +19,6 @@
 <link rel="stylesheet" href="styling.css" />
 
 <body>
-    <!-- <div id="liveVideo">
-        <video id="video" autoplay playsinline style="display: none;"></video>
-        <canvas id="videoCanvas"></canvas>
-        <canvas id="mediaCanvasFloat"></canvas>
-        <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
-        <canvas id="eraseCanvas" style="display: none;"></canvas>
-        <canvas id="textCanvas" style="display: none;"></canvas>
-        <canvas id="mediaCanvas" style="display: none;"></canvas>
-    </div> -->
-
     <div id="toolbox">
         <div id="toolboxheader" style="margin-bottom: 5px;">
             Toolbox
@@ -68,7 +58,7 @@
                 <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
             </div>
 
-           
+
             <div id="TextEditor" style="display: none;">
                 <div>
                     <label for="textInput">Text: </label>
@@ -135,7 +125,7 @@
 
                 <div id="searchBarDiv" style="display: flex; align-items: center;">
                     <span class="searchIcon">&#128269;</span>
-                    <input id="searchBar" type="text" placeholder="Search...">
+                    <input id="searchBar" style="width: 150px;" type="text" placeholder="Search...">
                     <button id="goButton" class="searchbtn" style="padding: 3px;
                         margin: 3px;">Go</button>
                     <button id="removeButton" class="searchbtn" style="display: none; padding: 3px;
@@ -149,7 +139,7 @@
 
                     </div>
                 </div>
-                
+
                 <div id="base_video_div_" style="display: none;">
                     <video id="base_video" class="base_video" src="media/video/Loading.mp4"></video>
                     <button id="playPauseBtn">Pause</button>
@@ -181,35 +171,37 @@
                 </div>
 
                 <div class="mediaSettings" id="imageSettings">
-                    <div id="eraseObjSelector">
+                    <div id="editModeSelectorDiv">
                         <label>Edit Mode:</label>
-                        <input type="radio" name="mediaMode" id="advancedEdits"> Advacing
-                        <input type="radio" name="mediaMode" id="simpleEdits" checked> Simple
+                        <button id="simpleEdits"> Simple </button>
+                        <button id="advancedEdits"> Advanced </button>
                     </div>
-        
-                    <div style="display: flex;">
+
+                    <div style="display: none;" id="HsizeSliderDiv">
                         <label>Horiz. Size:</label>
-                        <input id="sizeHSlider" type="range" min="10" max="50" value="25">
-                        <textarea id="sizeHValue" style="resize: none;">25</textarea>%
+                        <input id="sizeHSlider" type="range" min="10" max="100" value="50">
+                        <textarea id="sizeHValue" style="resize: none;">50</textarea><label>%</label>
                     </div>
-                    <div style="display: flex;">
+                    <div style="display: none;" id="VsizeSliderDiv">
                         <label>Verti. Size:</label>
-                        <input id="sizeVSlider" type="range" min="10" max="50" value="25">
-                        <textarea id="sizeVValue" style="resize: none;">25</textarea>%
+                        <input id="sizeVSlider" type="range" min="10" max="100" value="50">
+                        <textarea id="sizeVValue" style="resize: none;">50</textarea><label>%</label>
                     </div>
-                    <div style="display: none;">
+
+                    <div style="display: flex;" id="SsizeSliderDiv">
                         <label>Size:</label>
-                        <input id="sizeSlider" type="range" min="10" max="50" value="25">
-                        <textarea id="sizeValue" style="resize: none;">25</textarea>%
+                        <input id="sizeSlider" type="range" min="10" max="100" value="50">
+                        <textarea id="sizeValue" style="resize: none;">50</textarea>
                     </div>
-                    <div style="display: flex;">
+
+                    <div style="display: flex;" id="angleSliderDiv">
                         <label>Angle:</label>
                         <input id="angleSlider" type="range" min="-180" max="180" value="0">
-                        <textarea id="angleValue" style="resize: none;">0</textarea> °
+                        <textarea id="angleValue" style="resize: none;">0</textarea> <label> °</Label>
                     </div>
-                    <div id="messageDiv" style="display: flex;">
-                        <label>Text: </label>
-                        <input id="mediaMessage"></input>
+                    <div id="messageDiv" style="display: none;">
+                        <label style="padding-right: 2px;">Text: </label>
+                        <input id="mediaMessage" placeholder="enter a short message"></input>
                     </div>
                     <div id="timeDiv" style="display: flex;">
                         <label>Time: </label>

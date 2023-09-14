@@ -79,9 +79,9 @@ function setupEventListeners() {
 
     // ----------- Video Initialization ----------//
     video.addEventListener('play', () => {
-        video.videoHeight = video.videoHeight/video.videoWidth*320;
+        video.videoHeight = video.videoHeight / video.videoWidth * 320;
         video.videoWidth = 320;
-        video.height = video.videoHeight/video.videoWidth*320;
+        video.height = video.videoHeight / video.videoWidth * 320;
         video.width = 320;
         mainCanvas.width = video.videoWidth;
         mainCanvas.height = video.videoHeight;
@@ -305,7 +305,7 @@ function renderTextPreview() {
     //// textAngleValue.innerText = textAngleSlider.value;
 
     let height = fontSizeSelector.value;
-    let width = textInput.value * fontSizeSelector.value / 2;
+    let width = (textInput.value.length + 2) * fontSizeSelector.value / 2;
 
     // translate and rotate the canvas so that the image is centered
     textCTX.save();
@@ -316,18 +316,19 @@ function renderTextPreview() {
     // draw the "edit image" background behind the media object
     if (Math.floor(time / 10) % 2) textCTX.strokeStyle = '#ff0000';
     else textCTX.strokeStyle = '#000000';
+
     textCTX.globalAlpha = .4;
     textCTX.shadowColor = "#d53";
     textCTX.shadowBlur = 20;
     textCTX.lineJoin = "round";
     textCTX.lineWidth = 5;
     // mediaCTX.strokeStyle = "#38f";
-    textCTX.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
+    textCTX.strokeRect((mouseX2 - width / 2 - 4), (mouseY2 - height / 2 + 4), width, height);
     textCTX.globalAlpha = 1;
 
     // draw the image
     // textCTX.fillText(textInput.value, mouseX2, mouseY2);
-    textCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 - height / 2);
+    textCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 + height / 2);
     // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
     textCTX.restore();
 }
@@ -447,14 +448,16 @@ function renderImagePreview() {
         // draw the media object
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-
+            let sSize = sizeSlider.value;
             let base_image = new Image();
             base_image.src = './media/image/' + mediaLink;
-            // let sSize = sizeSlider.value;
-            let angle = angleSlider.value;
-            let width = sizeHSlider.value / 50 * base_image.width;
-            let height = sizeVSlider.value / 50 * base_image.height;
-
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 4;
+                height = sSize / 100 * base_image.height / 4;
+            } else {
+                width = sSize / 100 * base_image.width / 4;
+                height = sSize / 100 * base_image.height / 4;
+            }
             // translate and rotate the canvas so that the image is centered
             mediaCTX.save();
             mediaCTX.translate(mouseX2, mouseY2);
@@ -482,9 +485,13 @@ function renderImagePreview() {
             let base_image = new Image();
             base_image.src = './media/image/soundIcon.png';
             let sSize = sizeSlider.value;
-            let angle = angleSlider.value;
-            let width = sSize / 100 * base_image.width;
-            let height = sSize / 100 * base_image.height;
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 4;
+                height = sSize / 100 * base_image.height / 4;
+            } else {
+                width = sizeHValue / 100 * base_image.width / 4;
+                height = sizeVValue / 100 * base_image.height / 4;
+            }
             // mediaCTX.rotate(angle * Math.PI / 180);
             mediaCTX.save();
             mediaCTX.translate(mouseX2, mouseY2);
@@ -515,10 +522,17 @@ function drawVideo(ctx) {
         var $this = this; //cache
         (function loop() {
             if (!$this.paused && !$this.ended) {
-                angle = angleSlider.value
-                // mediaCanvas.drawImage($this, 0, 0);
-                let width = sizeHSlider.value / 50 * 320;
-                let height = sizeVSlider.value / 50 * 240;
+                let sSize = sizeSlider.value;
+                let angle = angleSlider.value;
+                let width, height;
+                if (editMode == 'simple') {
+                    width = sSize / 100 * base_image.width / 4;
+                    height = sSize / 100 * base_image.height / 4;
+                } else {
+                    width = sizeHValue / 100 * base_image.width / 4;
+                    height = sizeVValue / 100 * base_image.height / 4;
+                }
+
                 ctx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
                 // mediaCTX.drawImage($this, 0, 0, 120, 80);
                 ctx.save();
@@ -567,8 +581,14 @@ function finalizeImage() {
 
             let sSize = sizeSlider.value;
             let angle = angleSlider.value;
-            let width = sSize / 100 * base_image.width;
-            let height = sSize / 100 * base_image.height;
+            let width, height;
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 4;
+                height = sSize / 100 * base_image.height / 4;
+            } else {
+                width = sizeHValue / 100 * base_image.width / 4;
+                height = sizeVValue / 100 * base_image.height / 4;
+            }
 
             mainCTX.save();
             mainCTX.translate(mouseX2, mouseY2);
@@ -593,9 +613,17 @@ function finalizeImage() {
 
             let VSize = sizeVSlider.value;
             let HSize = sizeHSlider.value;
+            let sSize = sizeSlider.value;
             let angle = angleSlider.value;
             let width = HSize / 100 * 128;
             let height = VSize / 100 * 128;
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 4;
+                height = sSize / 100 * base_image.height / 4;
+            } else {
+                width = HSize / 100 * base_image.width / 4;
+                height = VSize / 100 * base_image.height / 4;
+            }
 
             //Draw sound icon
             mediaCTX.save();
@@ -625,7 +653,7 @@ function finalizeImage() {
 
             setTimeout(() => {
                 clearInterval(drawPermVideo);
-            }, base_video.duration);
+            }, base_video.duration * 1000);
         }
 
     }

@@ -70,10 +70,10 @@ canvas {
     position: absolute;
     width: 320px;
 }
-
+/* 
 #toolbox>div {
-    padding: 3px 5px;
-}
+    padding: 3px 3px;
+} */
 
 label {
     align-self: center;
@@ -196,4 +196,5 @@ input {
 
 textarea{
     resize: none;
+    width: 64px;
 }

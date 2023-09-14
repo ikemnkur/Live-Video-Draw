@@ -37,8 +37,8 @@ let mouseX = video.width / 2;
 let mouseY = video.height / 2;
 
 // mosue down position
-let mouseX2 = 320//video.width / 2;
-let mouseY2 = 240//video.height / 2;
+let mouseX2 = video.width / 2;
+let mouseY2 = video.height / 2;
 
 //the coordinates of the mouse
 let coordinatesDisplay = document.getElementById('coordinates');
@@ -330,6 +330,17 @@ textAngleValue.addEventListener('input', () => {
     renderTextPreview();
 });
 
+// Eqaul Ratio Size Slider
+let sizeValue = document.getElementById('sizeValue');
+sizeSlider.addEventListener('input', () => {
+    sizeValue.value = sizeSlider.value;
+    renderImagePreview();
+});
+sizeValue.addEventListener('input', () => {
+    sizeSlider.value = sizeValue.value;
+    renderImagePreview();
+});
+
 // Horizontal Size Slider
 let sizeHValue = document.getElementById('sizeHValue');
 sizeHSlider.addEventListener('input', () => {
@@ -371,6 +382,8 @@ volumeSlider.addEventListener('input', () => {
 volumeValue.addEventListener('input', () => {
     volumeSlider.value = volumeValue.value;
 });
+
+
 
 // ---------- Video Preview Playback--------------- //
 
@@ -609,8 +622,8 @@ function search4Media() {
                         base_video.src = `./media/video/${mediaLink}`;
                         base_video.src = videoPreview.src
                         base_video.play();
-                        let width = parseInt(sizeSlider.value) / 100 * 640;
-                        let height = parseInt(sizeSlider.value) / 100 * 480;
+                        let width = parseInt(sizeSlider.value) / 100 * 320;
+                        let height = parseInt(sizeSlider.value) / 100 * 240;
                         console.log("Dimensions: (" + width + "," + height + ")");
 
                         bvd.style.display = "block";
@@ -809,3 +822,35 @@ goButton.addEventListener('click', () => {
     search4Media();
 });
 
+var editMode = "simple";
+var HsizeSliderDiv =document.getElementById("HsizeSliderDiv");
+var VsizeSliderDiv = document.getElementById("VsizeSliderDiv");
+var SsizeSliderDiv = document.getElementById("SsizeSliderDiv");
+var messageDiv = document.getElementById("messageDiv");
+var timeDiv = document.getElementById("timeDiv");
+var timeValue = document.getElementById("timeValue");
+timeValue.value = 5;
+
+var advanceMode = document.getElementById("advancedEdits");
+// When the button is clicked do the switch to advanced edit mode
+advanceMode.addEventListener('click', () => {
+    editMode = "advanced";
+    HsizeSliderDiv.style.display = "flex";
+    VsizeSliderDiv.style.display = "flex";
+    SsizeSliderDiv.style.display = "none";
+    messageDiv.style.display = "flex";
+    timeDiv.style.display = "none";
+    timeValue.value = 5;
+});
+
+var simpleMode = document.getElementById("simpleEdits");
+// When the button is clicked do the switch to simple edit mode
+simpleMode.addEventListener('click', () => {
+    editMode = "simple";
+    HsizeSliderDiv.style.display = "none";
+    VsizeSliderDiv.style.display = "none";
+    SsizeSliderDiv.style.display = "flex";
+    messageDiv.style.display = "none";
+    timeDiv.style.display = "flex";
+    timeValue.value = 5;
+});
