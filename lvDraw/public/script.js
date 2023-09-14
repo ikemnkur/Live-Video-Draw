@@ -84,7 +84,7 @@ navigator.mediaDevices
     audio: true,
     video: true,
   })
-  .then((stream) => {
+  .then((stream) => { 
     stream = myVideoStream;
     // addVideoStream(myVideo, stream);
     // videoGrid.append(document.getElementById("liveVideo"))
@@ -221,8 +221,8 @@ class liveVideoObj {
 
     this.temporaryCanvas = document.createElement('canvas');
     this.temporaryCtx = temporaryCanvas.getContext('2d');
-    temporaryCanvas.width = video.videoWidth;
-    temporaryCanvas.height = video.videoHeight;
+    this.temporaryCanvas.width = video.videoWidth;
+    this.temporaryCanvas.height = video.videoHeight;
     this.myVideoStream = temporaryCanvas.captureStream(25);
 
     this.video = this.liveVideo.children[0];
@@ -249,7 +249,7 @@ class liveVideoObj {
     });
   }
 
-  videoPlay() {
+  // videoPlay() {
     // ----------- Video Initialization ----------//
     // this.video.addEventListener('play', function () {
     //   var $this = this; //cache
@@ -261,7 +261,7 @@ class liveVideoObj {
     //   })();
     // }, 0);
 
-  }
+  // }
 
   method() {
     console.log("Hello, I'm a method!");
@@ -277,7 +277,7 @@ class liveVideoObj {
   }
 
   updateCanvas() {
-    this.videoPlay();
+    // this.videoPlay();
     this.updates = setInterval(() => {
       this.canvas2video(this.videoCanvas, this.tempMediaCanvas, this.drawCanvas);
     }, 1000 / 30);

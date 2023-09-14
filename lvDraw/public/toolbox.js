@@ -17,6 +17,10 @@ let bvd = document.getElementById("base_video_div_")
 let mediaDisplay = document.getElementById("mediaDisplay")
 
 // Erase tool
+let eraseMode = document.getElementById('eraseMode')
+let eraseMain = document.getElementById('eraseMain')
+let eraseDrawing = document.getElementById('eraseDrawing')
+let eraseBoth = document.getElementById('eraseBoth')
 let showEraser = false;
 let ctxVal = false;
 
@@ -30,7 +34,7 @@ let textAngleSlider = document.getElementById('textAngleSlider');
 let textAngleValue = document.getElementById('textAngleValue');
 
 // the art mode( draw, erase, add text, add media)
-let mode = 'draw';
+let mode = 'view';
 
 // mouse moving position
 let mouseX = video.width / 2;
@@ -225,8 +229,10 @@ modeSelect.addEventListener('change', (e) => {
         textCanvas.style.display = 'none';
         ColorEditor.style.display = 'none';
         StrokeSizeEditor.style.display = 'flex';
+        eraseMode.style.display = 'block';
     } else {
         eraseCanvas.style.display = 'none';
+        eraseMode.style.display = 'none';
     }
 
     if (mode === 'text') {

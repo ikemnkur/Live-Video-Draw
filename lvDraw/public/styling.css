@@ -49,8 +49,8 @@
 
 .canvas-container {
     position: relative;
-    width: 330px;
-    height: 270px;
+    width: 337px;
+    height: 300px;
     /* border: 1px solid black; */
     display: inline-block;
     margin: 10px;
@@ -197,4 +197,8 @@ input {
 textarea{
     resize: none;
     width: 64px;
+}
+
+#videoCanvas{
+    margin: 5px;
 }

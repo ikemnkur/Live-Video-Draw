@@ -39,8 +39,8 @@
             <div style="margin-top: 5px;">
                 <label for="mode">Mode: </label>
                 <select id="mode">
-                    <option value="view">View</option>
-                    <option value="draw" selected>Draw</option>
+                    <option value="view" selected>View</option>
+                    <option value="draw" >Draw</option>
                     <option value="erase">Erase</option>
                     <option value="text">Text</option>
                     <option value="addMedia">Add Media</option>
@@ -52,7 +52,12 @@
                 <label for="color">Color: </label>
                 <input type="color" id="color-picker" value="#ff0000"><br />
             </div>
-
+            <div id="eraseMode" style="display: none;">
+                <label>Erase Mode:</label>
+                <input type="radio" name="mediaMode" id="eraseMain" checked> Main
+                <input type="radio" name="mediaMode" id="eraseDrawing" checked> Drawing
+                <input type="radio" name="mediaMode" id="eraseBoth" checked> Both
+            </div>
             <div id="StrokeSizeEditor">
                 <label for="stroke-size">Stroke size: </label>
                 <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
@@ -245,7 +250,7 @@
                         <canvas id="videoCanvas"></canvas>
                         <canvas id="tempMediaCanvas"></canvas>
                         <canvas id="mainCanvas" style="cursor: default;"></canvas>
-                        <canvas id="drawCanvas" style="cursor: crosshair;"></canvas>
+                        <canvas id="drawCanvas" style="cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
                         <canvas id="eraseCanvas" style="display: none;"></canvas>
                         <canvas id="mediaCanvas" style="display: none;"></canvas>
                         <canvas id="textCanvas" style="display: none;"></canvas>

@@ -52,7 +52,6 @@ function selectStream(liveVideo) {
     setupEventListeners();
 }
 
-// let ctxVal = false;
 
 //Drag Image or video around on the screen
 let moveMedia = false;
@@ -121,11 +120,21 @@ function setupEventListeners() {
         }
     });
 
+    let eraseMain = document.getElementById('eraseMain')
+    let eraseDrawing = document.getElementById('eraseDrawing')
+    let eraseBoth = document.getElementById('eraseBoth')
+
     eraseCanvas.addEventListener('mousemove', (e) => {
         if (mode === 'erase') {
             if (drawing === true) {
-                drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
-                drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                if (eraseMain.checked) {
+                    drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                } if (eraseDrawing.checked) {
+                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+                } if (eraseBoth.checked) {
+                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY); 
+                    drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                }
                 x = e.offsetX;
                 y = e.offsetY;
             }
@@ -276,7 +285,7 @@ function setupEventListeners() {
     let doneBtn = document.getElementById('doneBtn');
     doneBtn.addEventListener('click', () => {
         if (mode == "text")
-            finalizeText()
+            finalizeText();
         if (mode == "addMedia")
             finalizeImage();
         if (mode == "draw")
@@ -291,19 +300,8 @@ function renderTextPreview() {
     textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
     textCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
     textCTX.fillStyle = colorPicker.value;
-    // let x = e ? e.offsetX : textCanvas.width / 2;
-    // let y = e ? e.offsetY : textCanvas.height / 2;
+
     let angle = textAngleSlider.value;
-    // textCTX.save(); //save the state of canvas
-    // textCTX.translate(x, y); //let's translate
-    // textCTX.rotate(angle * Math.PI / 180)
-    // textCTX.translate(-x, -y); //let's translate
-    // textCTX.fillText(textInput.value, x, y);
-    // textCTX.restore(); //restore the state of canvas
-
-    //// textCTX.rotate(-angle * Math.PI / 180)
-    //// textAngleValue.innerText = textAngleSlider.value;
-
     let height = fontSizeSelector.value;
     let width = (textInput.value.length + 2) * fontSizeSelector.value / 2;
 
@@ -337,22 +335,6 @@ function renderTextPreview() {
 
 function finalizeText() {
     if (mode === 'text') {
-        // let angle = textAngleSlider.value;
-        // mainCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-        // mainCTX.fillStyle = colorPicker.value;
-
-        // let x = e ? e.offsetX : textCanvas.width / 2;
-        // let y = e ? e.offsetY : textCanvas.height / 2;
-
-        // mainCTX.save();
-        // mainCTX.translate(x, y);
-        // mainCTX.rotate(angle * Math.PI / 180);
-        // mainCTX.translate(-x, -y);
-        // mainCTX.fillText(textInput.value, e.offsetX, e.offsetY);
-        // textInput.value = "";
-        // textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        // mainCTX.restore();
-
         ///////////////////// New
         textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
         mainCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
@@ -394,11 +376,17 @@ function renderEraserSquare(x, y) {
     // }
 }
 
-// Draw the line
+function renderDrawingPreview(ctx) {
+    if (Math.floor(time / 10) % 2 == 0) {
+        drawCanvas.style.borderColor = '#ffff80';
+    } else {
+        drawCanvas.style.borderColor = '#90ffff';
+    }
+}
 
+// Draw the line
 function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
-
     if (modeSelect.value === 'draw') {
         context.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
         context.lineWidth = strokeSizeSlider.value;
@@ -425,7 +413,6 @@ function drawLine(context, x1, y1, x2, y2) {
     }
 
     console.log("drawing line: ", modeSelect.value)
-
     context.closePath();
 }
 
@@ -561,14 +548,27 @@ function drawVideo(ctx) {
 }
 
 //update media canvas preview at 30 fps
-let mediaCTXRender = setInterval(() => {
-    renderImagePreview(mediaCTX);
+let CTXRender = setInterval(() => {
+    if (mode === 'addMedia') {
+        renderImagePreview(mediaCTX);
+    } else if (mode === 'text') {
+        renderTextPreview(textCTX);
+    } else if (mode === 'draw') {
+        renderDrawingPreview(drawCTX);
+    } else if (mode === 'erase') {
+        if (eraseMain.checked){
+            drawCanvas.style.backgroundColor = '#ffffff00';
+            drawCanvas.style.display = 'none';
+        } else if(eraseDrawing.checked){
+            drawCanvas.style.backgroundColor = '#ffffff80';
+            drawCanvas.style.display = 'block';
+        } else if(eraseBoth.checked){
+            drawCanvas.style.backgroundColor = '#ffffff40';
+            drawCanvas.style.display = 'block';
+        }
+    }
 }, 1000 / 30)
 
-//update media canvas preview at 30 fps
-let textCTXRender = setInterval(() => {
-    renderTextPreview(textCTX);
-}, 1000 / 30)
 
 let mediaMessage = document.getElementById('mediaMessage');
 
@@ -660,12 +660,11 @@ function finalizeImage() {
 }
 
 function finalizeDrawing() {
-    // if (mode == 'draw') {
+    mainCTX.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
     mainCTX.drawImage(drawCanvas, 0, 0);
-    drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    // mode = 'view';
-    // modeSelect.selected = mo
-    // }
+    setTimeout(() => {
+      drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);  
+    }, 250);
 }
 
 function clearMediaAfterTimeout(ctx, width, height) {
