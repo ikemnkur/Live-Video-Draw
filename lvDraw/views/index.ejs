@@ -26,7 +26,7 @@
                 style="float: right; width: 32px; background-color: red; text-align: center;">&times;
             </span>
         </div>
-        <div id="toolboxSettings">
+        <div id="toolboxSettings" style="max-height: 500px; overflow-y: scroll;">
             <button id="clear">Clear</button>
             <button id="saveCanvas">Save Drawing</button>
             <button id="saveScreenshot">Save Screenshot</button><br />
@@ -40,7 +40,7 @@
                 <label for="mode">Mode: </label>
                 <select id="mode">
                     <option value="view" selected>View</option>
-                    <option value="draw" >Draw</option>
+                    <option value="draw">Draw</option>
                     <option value="erase">Erase</option>
                     <option value="text">Text</option>
                     <option value="addMedia">Add Media</option>
@@ -49,20 +49,26 @@
             </div>
 
             <div id="ColorEditor">
+                <!-- <div id="drawMode" style="display: block;">
+                    <label>Draw Mode:</label>
+                    <input type="radio" id="pencilMode" checked> Pencil
+                    <input type="radio" id="eraserMode"> Eraser
+                </div> -->
                 <label for="color">Color: </label>
                 <input type="color" id="color-picker" value="#ff0000"><br />
             </div>
+
             <div id="eraseMode" style="display: none;">
                 <label>Erase Mode:</label>
-                <input type="radio" name="mediaMode" id="eraseMain" checked> Main
-                <input type="radio" name="mediaMode" id="eraseDrawing" checked> Drawing
-                <input type="radio" name="mediaMode" id="eraseBoth" checked> Both
+                <input type="radio" name="eraseMainMode" id="eraseMain" checked> Main
+                <input type="radio" name="eraseDrawingMode" id="eraseDrawing"> Drawing
+                <input type="radio" name="eraseBothMode" id="eraseBoth"> Both
             </div>
+
             <div id="StrokeSizeEditor">
                 <label for="stroke-size">Stroke size: </label>
                 <input type="range" id="stroke-size" min="1" max="50" value="5"><br />
             </div>
-
 
             <div id="TextEditor" style="display: none;">
                 <div>
@@ -246,14 +252,20 @@
 
                     <!-- <div class="parent"> -->
                     <div id="myLiveVideoDIV" class="canvas-container">
-                        <video id="video" autoplay playsinline style="display: none;" width="320"></video>
-                        <canvas id="videoCanvas"></canvas>
-                        <canvas id="tempMediaCanvas"></canvas>
-                        <canvas id="mainCanvas" style="cursor: default;"></canvas>
-                        <canvas id="drawCanvas" style="cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
-                        <canvas id="eraseCanvas" style="display: none;"></canvas>
-                        <canvas id="mediaCanvas" style="display: none;"></canvas>
-                        <canvas id="textCanvas" style="display: none;"></canvas>
+                        <video id="video" autoplay playsinline style="display: none;" width="320" height="240"></video>
+                        <canvas id="videoCanvas" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="tempMediaCanvas" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mainCanvas"
+                            style="cursor: default; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="drawCanvas"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="eraseCanvas"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mediaCanvas"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="textCanvas"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <video id="finalVideo" autoplay playsinline style="display: none;" width="320"></video>
                     </div>
                     <!-- </div> -->
 

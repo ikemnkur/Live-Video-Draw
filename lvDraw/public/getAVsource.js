@@ -13,7 +13,7 @@ const audioInputSelect = document.querySelector('select#audioSource');
 const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
-
+let userStream;
 audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
 
 function gotDevices(deviceInfos) {
@@ -81,6 +81,7 @@ function gotStream(stream) {
     window.stream = stream; // make stream available to console
     videoElement.srcObject = stream;
     video.srcObject = stream;
+    userStream = stream;
     // Refresh button list in case labels have become available
     return navigator.mediaDevices.enumerateDevices();
 }

@@ -19,6 +19,8 @@ let textCTX = textCanvas.getContext('2d');
 let tempMediaCTX = tempMediaCanvas.getContext('2d');
 let mediaCTX = mediaCanvas.getContext('2d');
 
+let mediaMessage = document.getElementById('mediaMessage');
+
 selectStream(myLiveVideoDiv);
 
 // Select this  as the new liveVideo to draw onabort.
@@ -120,10 +122,6 @@ function setupEventListeners() {
         }
     });
 
-    let eraseMain = document.getElementById('eraseMain')
-    let eraseDrawing = document.getElementById('eraseDrawing')
-    let eraseBoth = document.getElementById('eraseBoth')
-
     eraseCanvas.addEventListener('mousemove', (e) => {
         if (mode === 'erase') {
             if (drawing === true) {
@@ -132,7 +130,7 @@ function setupEventListeners() {
                 } if (eraseDrawing.checked) {
                     drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
                 } if (eraseBoth.checked) {
-                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY); 
+                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
                     drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
                 }
                 x = e.offsetX;
@@ -157,8 +155,17 @@ function setupEventListeners() {
             console.log("showEraser: ", showEraser);
 
             if (drawing === true) {
-                drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
-                drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                if (eraseMain.checked) {
+                    drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                } if (eraseDrawing.checked) {
+                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+                } if (eraseBoth.checked) {
+                    drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+                    drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
+                }
+                // if()
+                // drawLine(drawCTX, x, y, e.offsetX, e.offsetY);
+                // drawLine(mainCTX, x, y, e.offsetX, e.offsetY);
                 x = 0;
                 y = 0;
                 drawing = false;
@@ -281,25 +288,33 @@ function setupEventListeners() {
         }
     });
 
-    // clicking on this button will finalize the image and render it arcoss the stream on the selected stream
-    let doneBtn = document.getElementById('doneBtn');
-    doneBtn.addEventListener('click', () => {
-        if (mode == "text")
-            finalizeText();
-        if (mode == "addMedia")
-            finalizeImage();
-        if (mode == "draw")
-            finalizeDrawing();
-    });
+
 
 }
 
-// -----------rendering the text in real time at mouse position
+//// ------------------ Handle Text ----------------///////////
 
+// Toolbox Text Editior Update Changes in Setting in Realtime
+textInput.addEventListener('input', () => {
+    renderTextPreview()
+});
+fontSelector.addEventListener('change', () => {
+    renderTextPreview()
+});
+fontType.addEventListener('change', () => {
+    renderTextPreview()
+});
+fontSizeSelector.addEventListener('change', () => {
+    renderTextPreview()
+});
+
+
+// -----------rendering the text in real time at mouse position
 function renderTextPreview() {
     textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
     textCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
     textCTX.fillStyle = colorPicker.value;
+    textCTX.globalCompositeOperation = 'source-over'; 
 
     let angle = textAngleSlider.value;
     let height = fontSizeSelector.value;
@@ -320,43 +335,42 @@ function renderTextPreview() {
     textCTX.shadowBlur = 20;
     textCTX.lineJoin = "round";
     textCTX.lineWidth = 5;
-    // mediaCTX.strokeStyle = "#38f";
     textCTX.strokeRect((mouseX2 - width / 2 - 4), (mouseY2 - height / 2 + 4), width, height);
     textCTX.globalAlpha = 1;
 
     // draw the image
-    // textCTX.fillText(textInput.value, mouseX2, mouseY2);
     textCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 + height / 2);
     // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
     textCTX.restore();
 }
 
 // -------print the text to the main canvas
-
 function finalizeText() {
-    if (mode === 'text') {
-        ///////////////////// New
-        textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        mainCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
-        mainCTX.fillStyle = colorPicker.value;
+    // if (mode === 'text') {
+    ///////////////////// New
+    textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    mainCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
+    mainCTX.fillStyle = colorPicker.value;
+    mainCTX.globalCompositeOperation = 'source-over'; 
 
-        let angle = textAngleSlider.value;
-        let height = fontSizeSelector.value;
-        let width = textInput.value * fontSizeSelector.value / 2;
+    let angle = textAngleSlider.value;
+    let height = fontSizeSelector.value;
+    let width = (textInput.value.length + 2) * fontSizeSelector.value / 2;
 
-        // translate and rotate the canvas so that the image is centered
-        mainCTX.save();
-        mainCTX.translate(mouseX2, mouseY2);
-        mainCTX.rotate(angle * Math.PI / 180);
-        mainCTX.translate(-mouseX2, -mouseY2);
+    // translate and rotate the canvas so that the image is centered
+    mainCTX.save();
+    mainCTX.translate(mouseX2, mouseY2);
+    mainCTX.rotate(angle * Math.PI / 180);
+    mainCTX.translate(-mouseX2, -mouseY2);
 
-        // draw the image
-        // mainCTX.fillText(textInput.value, mouseX2, mouseY2);
-        mainCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 - height / 2);
-        textInput.value = "";
-        // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-        mainCTX.restore();
-    }
+    // draw the image
+    // mainCTX.fillText(textInput.value, mouseX2, mouseY2);
+    mainCTX.fillText(textInput.value, mouseX2 - width / 2, mouseY2 + height / 2);
+
+    // textCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+    mainCTX.restore();
+    textInput.value = "";
+    // }
 }
 
 // Draw the eraser square 
@@ -376,6 +390,7 @@ function renderEraserSquare(x, y) {
     // }
 }
 
+// Highlight tht eborer to indicated the user that drawing mode is active
 function renderDrawingPreview(ctx) {
     if (Math.floor(time / 10) % 2 == 0) {
         drawCanvas.style.borderColor = '#ffff80';
@@ -388,7 +403,9 @@ function renderDrawingPreview(ctx) {
 function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
     if (modeSelect.value === 'draw') {
-        context.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
+        context.globalCompositeOperation = 'source-over';
+        // context.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
+        context.strokeStyle = colorPicker.value;
         context.lineWidth = strokeSizeSlider.value;
         context.lineCap = "round";
         context.moveTo(x1, y1);
@@ -403,32 +420,12 @@ function drawLine(context, x1, y1, x2, y2) {
         context.fillRect(x2 - size / 2, y2 - size / 2, size, size);
         // context.arc(x2, y2, radius, 0, Math.PI * 2);
         context.fill();
-    } else {
-        // if (modeSelect.value === 'draw') {
-        context.globalCompositeOperation = 'source-over';
-        context.moveTo(x1, y1);
-        context.lineTo(x2, y2);
-        context.stroke();
-        // }
     }
 
     console.log("drawing line: ", modeSelect.value)
     context.closePath();
 }
 
-// Toolbox Text Editior Update Changes in Setting in Realtime
-textInput.addEventListener('input', () => {
-    renderTextPreview()
-});
-fontSelector.addEventListener('change', () => {
-    renderTextPreview()
-});
-fontType.addEventListener('change', () => {
-    renderTextPreview()
-});
-fontSizeSelector.addEventListener('change', () => {
-    renderTextPreview()
-});
 
 function renderImagePreview() {
     if (mediaLink != "") {
@@ -436,14 +433,17 @@ function renderImagePreview() {
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let sSize = sizeSlider.value;
+            let HSize = sizeHSlider.value;
+            let VSize = sizeVSlider.value;
             let base_image = new Image();
+            let width, height;
             base_image.src = './media/image/' + mediaLink;
             if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 4;
-                height = sSize / 100 * base_image.height / 4;
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
             } else {
-                width = sSize / 100 * base_image.width / 4;
-                height = sSize / 100 * base_image.height / 4;
+                width = HSize / 100 * base_image.width / 2;
+                height = VSize / 100 * base_image.height / 2;
             }
             // translate and rotate the canvas so that the image is centered
             mediaCTX.save();
@@ -467,17 +467,18 @@ function renderImagePreview() {
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.restore();
         }
+
         if (mediaType === 'audio') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let base_image = new Image();
             base_image.src = './media/image/soundIcon.png';
             let sSize = sizeSlider.value;
             if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 4;
-                height = sSize / 100 * base_image.height / 4;
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
             } else {
-                width = sizeHValue / 100 * base_image.width / 4;
-                height = sizeVValue / 100 * base_image.height / 4;
+                width = sizeHValue.value / 100 * base_image.width / 2;
+                height = sizeVValue.value / 100 * base_image.height / 2;
             }
             // mediaCTX.rotate(angle * Math.PI / 180);
             mediaCTX.save();
@@ -504,24 +505,31 @@ function renderImagePreview() {
     }
 }
 
+let finalizeVideo = false;
+
 function drawVideo(ctx) {
     base_video.addEventListener('play', function () {
         var $this = this; //cache
         (function loop() {
             if (!$this.paused && !$this.ended) {
-                let sSize = sizeSlider.value;
+                let sSize = sizeSlider.value; // combined scale factor slider
+                let HSize = sizeHSlider.value; // horizontal scale factor slider
+                let VSize = sizeVSlider.value; // vertical scale factor slider
                 let angle = angleSlider.value;
-                let width, height;
+                let width, height; // final sizes
+
+                let vWidth = 300; // original size: width
+                let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
+
                 if (editMode == 'simple') {
-                    width = sSize / 100 * base_image.width / 4;
-                    height = sSize / 100 * base_image.height / 4;
+                    width = sSize / 100 * vWidth / 2;
+                    height = sSize / 100 * vHeight / 2;
                 } else {
-                    width = sizeHValue / 100 * base_image.width / 4;
-                    height = sizeVValue / 100 * base_image.height / 4;
+                    width = HSize / 100 * vWidth / 2;
+                    height = VSize / 100 * vHeight / 2;
                 }
 
                 ctx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-                // mediaCTX.drawImage($this, 0, 0, 120, 80);
                 ctx.save();
                 ctx.translate(mouseX2, mouseY2);
                 ctx.rotate(angle * Math.PI / 180);
@@ -540,54 +548,39 @@ function drawVideo(ctx) {
 
                 ctx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
                 ctx.restore();
+                // if (mediaType === 'video' && finalizeVideo == false)
                 if (mediaType === 'video')
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
+
+                base_video.addEventListener('ended', () => {
+                    base_video.play();
+                });
+
             }
         })();
     }, 0);
 }
 
-//update media canvas preview at 30 fps
-let CTXRender = setInterval(() => {
+
+function finalizeMedia() {
     if (mode === 'addMedia') {
-        renderImagePreview(mediaCTX);
-    } else if (mode === 'text') {
-        renderTextPreview(textCTX);
-    } else if (mode === 'draw') {
-        renderDrawingPreview(drawCTX);
-    } else if (mode === 'erase') {
-        if (eraseMain.checked){
-            drawCanvas.style.backgroundColor = '#ffffff00';
-            drawCanvas.style.display = 'none';
-        } else if(eraseDrawing.checked){
-            drawCanvas.style.backgroundColor = '#ffffff80';
-            drawCanvas.style.display = 'block';
-        } else if(eraseBoth.checked){
-            drawCanvas.style.backgroundColor = '#ffffff40';
-            drawCanvas.style.display = 'block';
-        }
-    }
-}, 1000 / 30)
-
-
-let mediaMessage = document.getElementById('mediaMessage');
-
-function finalizeImage() {
-    if (mode === 'addMedia') {
+        mainCTX.globalCompositeOperation = 'source-over';
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
             let base_image = new Image();
             base_image.src = './media/image/' + mediaLink;
 
             let sSize = sizeSlider.value;
+            let HSize = sizeHSlider.value;
+            let VSize = sizeVSlider.value;
             let angle = angleSlider.value;
             let width, height;
             if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 4;
-                height = sSize / 100 * base_image.height / 4;
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
             } else {
-                width = sizeHValue / 100 * base_image.width / 4;
-                height = sizeVValue / 100 * base_image.height / 4;
+                width = HSize / 100 * base_image.width / 2;
+                height = VSize / 100 * base_image.height / 2;
             }
 
             mainCTX.save();
@@ -618,11 +611,11 @@ function finalizeImage() {
             let width = HSize / 100 * 128;
             let height = VSize / 100 * 128;
             if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 4;
-                height = sSize / 100 * base_image.height / 4;
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
             } else {
-                width = HSize / 100 * base_image.width / 4;
-                height = VSize / 100 * base_image.height / 4;
+                width = HSize / 100 * base_image.width / 2;
+                height = VSize / 100 * base_image.height / 2;
             }
 
             //Draw sound icon
@@ -646,13 +639,17 @@ function finalizeImage() {
 
         if (mediaType == 'video') {
             // tempMediaCanvas.dis
-
-            let drawPermVideo = setInterval(() => {
+            console.log('started playing video')
+            finalizeVideo = true;
+            // let drawPermVideo = setInterval(() => {
                 drawVideo(tempMediaCTX)
-            }, 1000 / 30);
+                console.log('playing video')
+            // }, 1000 / 30);
 
             setTimeout(() => {
-                clearInterval(drawPermVideo);
+                // clearInterval(drawPermVideo);
+                finalizeVideo = false; 
+                console.log('ended playing video')
             }, base_video.duration * 1000);
         }
 
@@ -661,10 +658,23 @@ function finalizeImage() {
 
 function finalizeDrawing() {
     mainCTX.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
-    mainCTX.drawImage(drawCanvas, 0, 0);
-    setTimeout(() => {
-      drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);  
-    }, 250);
+    // let oldBackgroundColor = drawCanvas.style.backgroundColor;
+    // drawCanvas.style.backgroundColor = "rgba(255, 255, 255, 0)"
+    async function firstFunction() {
+        mainCTX.globalCompositeOperation = 'source-over';
+        mainCTX.drawImage(drawCanvas, 0, 0)
+        return;
+    }
+    async function secondFunction() {
+        await firstFunction();
+        // drawCanvas.style.backgroundColor = oldBackgroundColor;
+        drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        // setTimeout(() => {
+        // drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        // }, 250);
+    };
+    secondFunction();
+
 }
 
 function clearMediaAfterTimeout(ctx, width, height) {
@@ -687,4 +697,16 @@ function clearMediaPreviewDiv() {
     });
     mediaLink = "";
 }
+
+
+//update media canvas preview at 30 fps
+let CTXRender = setInterval(() => {
+    if (mode === 'addMedia') {
+        renderImagePreview(mediaCTX);
+    } else if (mode === 'text') {
+        renderTextPreview(textCTX);
+    } else if (mode === 'draw') {
+        renderDrawingPreview(drawCTX);
+    }
+}, 1000 / 30)
 
