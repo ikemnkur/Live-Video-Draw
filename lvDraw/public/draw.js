@@ -314,7 +314,7 @@ function renderTextPreview() {
     textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
     textCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
     textCTX.fillStyle = colorPicker.value;
-    textCTX.globalCompositeOperation = 'source-over'; 
+    textCTX.globalCompositeOperation = 'source-over';
 
     let angle = textAngleSlider.value;
     let height = fontSizeSelector.value;
@@ -351,7 +351,7 @@ function finalizeText() {
     textCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
     mainCTX.font = `${fontType.value} ${fontSizeSelector.value}px ${fontSelector.value}`;
     mainCTX.fillStyle = colorPicker.value;
-    mainCTX.globalCompositeOperation = 'source-over'; 
+    mainCTX.globalCompositeOperation = 'source-over';
 
     let angle = textAngleSlider.value;
     let height = fontSizeSelector.value;
@@ -548,9 +548,11 @@ function drawVideo(ctx) {
 
                 ctx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
                 ctx.restore();
-                // if (mediaType === 'video' && finalizeVideo == false)
-                if (mediaType === 'video')
+                if (mediaType === 'video' && finalizeVideo == false) {
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
+                    return false;
+                }
+
 
                 base_video.addEventListener('ended', () => {
                     base_video.play();
@@ -561,6 +563,59 @@ function drawVideo(ctx) {
     }, 0);
 }
 
+function drawVideoTemp() {
+    base_video.play();
+    let timeO = false;
+    base_video.addEventListener('play', function () {
+        var $this = this; //cache
+        console.log("start temp video");
+        (function loop() {
+            if (!$this.paused && !$this.ended) {
+                let sSize = sizeSlider.value; // combined scale factor slider
+                let HSize = sizeHSlider.value; // horizontal scale factor slider
+                let VSize = sizeVSlider.value; // vertical scale factor slider
+                let angle = angleSlider.value;
+                let width, height; // final sizes
+
+                let vWidth = 300; // original size: width
+                let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
+
+                if (editMode == 'simple') {
+                    width = sSize / 100 * vWidth / 2;
+                    height = sSize / 100 * vHeight / 2;
+                } else {
+                    width = HSize / 100 * vWidth / 2;
+                    height = VSize / 100 * vHeight / 2;
+                }
+
+                tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+                tempMediaCTX.save();
+                tempMediaCTX.translate(mouseX2, mouseY2);
+                tempMediaCTX.rotate(angle * Math.PI / 180);
+                tempMediaCTX.translate(-mouseX2, -mouseY2);
+
+                tempMediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+                tempMediaCTX.restore();
+
+                if (mediaType === 'video' && finalizeVideo == true)
+                    setTimeout(loop, 1000 / 30); // drawing at 30fps
+
+                // base_video.addEventListener('ended', () => {
+                // base_video.play();
+                if (timeO == false) {
+                    setTimeout(() => {
+                        finalizeVideo = false;
+                        tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+                        console.log('done with temp video');
+                        return 'done';
+                    }, mediaStopSlider.value - mediaStartSlider.value);
+                    timeO = true;
+                }
+                // });
+            }
+        })();
+    }, 0);
+}
 
 function finalizeMedia() {
     if (mode === 'addMedia') {
@@ -642,13 +697,13 @@ function finalizeMedia() {
             console.log('started playing video')
             finalizeVideo = true;
             // let drawPermVideo = setInterval(() => {
-                drawVideo(tempMediaCTX)
-                console.log('playing video')
+            drawVideoTemp()
+            console.log('playing video')
             // }, 1000 / 30);
 
             setTimeout(() => {
                 // clearInterval(drawPermVideo);
-                finalizeVideo = false; 
+                finalizeVideo = false;
                 console.log('ended playing video')
             }, base_video.duration * 1000);
         }
