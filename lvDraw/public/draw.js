@@ -507,7 +507,7 @@ function renderImagePreview() {
 
 let finalizeVideo = false;
 
-function drawVideo(ctx) {
+function drawVideo() {
     base_video.addEventListener('play', function () {
         var $this = this; //cache
         (function loop() {
@@ -529,28 +529,31 @@ function drawVideo(ctx) {
                     height = VSize / 100 * vHeight / 2;
                 }
 
-                ctx.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
-                ctx.save();
-                ctx.translate(mouseX2, mouseY2);
-                ctx.rotate(angle * Math.PI / 180);
-                ctx.translate(-mouseX2, -mouseY2);
+                mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
+                mediaCTX.save();
+                mediaCTX.translate(mouseX2, mouseY2);
+                mediaCTX.rotate(angle * Math.PI / 180);
+                mediaCTX.translate(-mouseX2, -mouseY2);
 
                 // draw the "edit image" background behind the media object
                 if (Math.floor(time / 10) % 2)
-                    mediaCTX.fillStyle = '#ff0000';
+                    mediamediaCTX.fillStyle = '#ff0000';
                 else
-                    mediaCTX.fillStyle = '#000000';
+                    mediamediaCTX.fillStyle = '#000000';
 
-                ctx.globalAlpha = .4;
-                ctx.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
-                ctx.fill();
-                ctx.globalAlpha = 1;
+                mediaCTX.globalAlpha = .4;
+                mediaCTX.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
+                mediaCTX.fill();
+                mediaCTX.globalAlpha = 1;
 
-                ctx.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-                ctx.restore();
+                mediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+                mediaCTX.restore();
                 if (mediaType === 'video' && finalizeVideo == false) {
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
                     return false;
+                }
+                else {
+                    mediaCTX.clearRect(0, 0, tempMediamediaCTX.width, tempMediamediaCTX.height);
                 }
 
 
@@ -564,57 +567,62 @@ function drawVideo(ctx) {
 }
 
 function drawVideoTemp() {
-    base_video.play();
+    // base_video.play();
     let timeO = false;
-    base_video.addEventListener('play', function () {
-        var $this = this; //cache
-        console.log("start temp video");
-        (function loop() {
-            if (!$this.paused && !$this.ended) {
-                let sSize = sizeSlider.value; // combined scale factor slider
-                let HSize = sizeHSlider.value; // horizontal scale factor slider
-                let VSize = sizeVSlider.value; // vertical scale factor slider
-                let angle = angleSlider.value;
-                let width, height; // final sizes
+    // base_video.addEventListener('play', function () {
+    // var $this = this; //cache
 
-                let vWidth = 300; // original size: width
-                let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
+    console.log("start temp video");
+    (function loop() {
+        var $this = base_video; //cache
+        if (!$this.paused && !$this.ended) {
+            let sSize = sizeSlider.value; // combined scale factor slider
+            let HSize = sizeHSlider.value; // horizontal scale factor slider
+            let VSize = sizeVSlider.value; // vertical scale factor slider
+            let angle = angleSlider.value;
+            let width, height; // final sizes
 
-                if (editMode == 'simple') {
-                    width = sSize / 100 * vWidth / 2;
-                    height = sSize / 100 * vHeight / 2;
-                } else {
-                    width = HSize / 100 * vWidth / 2;
-                    height = VSize / 100 * vHeight / 2;
-                }
+            let vWidth = 300; // original size: width
+            let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
 
-                tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
-                tempMediaCTX.save();
-                tempMediaCTX.translate(mouseX2, mouseY2);
-                tempMediaCTX.rotate(angle * Math.PI / 180);
-                tempMediaCTX.translate(-mouseX2, -mouseY2);
-
-                tempMediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-                tempMediaCTX.restore();
-
-                if (mediaType === 'video' && finalizeVideo == true)
-                    setTimeout(loop, 1000 / 30); // drawing at 30fps
-
-                // base_video.addEventListener('ended', () => {
-                // base_video.play();
-                if (timeO == false) {
-                    setTimeout(() => {
-                        finalizeVideo = false;
-                        tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
-                        console.log('done with temp video');
-                        return 'done';
-                    }, mediaStopSlider.value - mediaStartSlider.value);
-                    timeO = true;
-                }
-                // });
+            if (editMode == 'simple') {
+                width = sSize / 100 * vWidth / 2;
+                height = sSize / 100 * vHeight / 2;
+            } else {
+                width = HSize / 100 * vWidth / 2;
+                height = VSize / 100 * vHeight / 2;
             }
-        })();
-    }, 0);
+
+            tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+            tempMediaCTX.save();
+            tempMediaCTX.translate(mouseX2, mouseY2);
+            tempMediaCTX.rotate(angle * Math.PI / 180);
+            tempMediaCTX.translate(-mouseX2, -mouseY2);
+
+            tempMediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            tempMediaCTX.restore();
+
+            if (mediaType === 'video' && finalizeVideo == true)
+                setTimeout(loop, 1000 / 30); // drawing at 30fps
+            else {
+                tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+            }
+
+            // base_video.addEventListener('ended', () => {
+            // base_video.play();
+            if (timeO == false) {
+                setTimeout(() => {
+                    finalizeVideo = false;
+                    tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+                    console.log('done with temp video');
+                    return 'done';
+                }, (mediaStopSlider.value - mediaStartSlider.value) * 1000);
+                timeO = true;
+            }
+            // });
+        }
+    })();
+    // }, 0);
 }
 
 function finalizeMedia() {

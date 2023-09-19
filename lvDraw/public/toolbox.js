@@ -617,7 +617,7 @@ function search4Media() {
                         bvd.style.display = "block";
                         mediaDisplay.style.display = "none";
                         // let mediaCTX = mediaCanvas.getContext('2d');
-                        drawVideo(mediaCTX);
+                        drawVideo();
                     }
                 });
 
