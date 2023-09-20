@@ -14,6 +14,9 @@ const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
 let userStream;
+var userAudioSource;
+var userVideoSource;
+
 audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
 
 function gotDevices(deviceInfos) {
@@ -98,6 +101,8 @@ function start() {
     }
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
+    userAudioSource = audioSource;
+    userVideoSource = videoSource;
     const constraints = {
         audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
         video: {

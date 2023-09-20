@@ -133,8 +133,6 @@ peer.on("open", (id) => {
   socket.emit("join-room", ROOM_ID, id, user);
 });
 
-
-
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
   videoObj = createNewLiveVideo(stream);
@@ -145,7 +143,6 @@ const addVideoStream = (video, stream) => {
     videoGrid.append(video);
   });
 };
-
 
 
 let text = document.querySelector("#chat_message");
@@ -248,34 +245,18 @@ function createNewLiveVideo(stream) {
   let mediaCTX = mediaCanvas.getContext('2d');
 
   let myVideoStream = temporaryCanvas.captureStream(30);
-  finalVideo.srcObject = myVideoStream;
-  video.srcObject = stream;
+
+  var mergedStream = mergeStreams(myVideoStream, userAudioSource);
+  //this video stream to the VideoCanvas
+  video.srcObject = stream; 
+  //this video stream to the finalVideo obj
+  finalVideo.srcObject = mergedStream; 
 
   liveVideo.addEventListener("click", () => {
     if (selectedLiveVideoID != liveVideo.id) {
       selectStream(liveVideo)
     }
   });
-
-
-  // videoPlay() {
-  // ----------- Video Initialization ----------//
-  // let video.addEventListener('play', function () {
-  //   var $this = this; //cache
-  //   (function loop() {
-  //     if (!$let paused && !$let ended) {
-  //       let videoCTX.drawImage($this, 0, 0);
-  //       setTimeout(loop, 1000 / 30); // drawing at 30fps
-  //     }
-  //   })();
-  // }, 0);
-
-  // }
-
-
-
-  // let myStream = stream;
-
 
   function canvas2video(videoCanvas, tempMediaCanvas, drawCanvas) {
     // Draw the video frame to the temporary drawCanvas.
@@ -286,7 +267,6 @@ function createNewLiveVideo(stream) {
     temporaryCtx.drawImage(drawCanvas, 0, 0);
   }
 
-  // let videoPlay();
   let updates = setInterval(() => {
     canvas2video(videoCanvas, tempMediaCanvas, drawCanvas);
   }, 1000 / 30);
@@ -301,6 +281,10 @@ function createNewLiveVideo(stream) {
 
 }
 
+function mergeStreams(videoStream, audioStream) {
+  var mergedStream = new MediaStream([...videoStream.getTracks(), ...audioStream.getTracks()]);
+  return mergedStream;
+}
 
 // class liveVideoObj {
 //   constructor() {
