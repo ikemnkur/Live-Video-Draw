@@ -63,6 +63,7 @@ var videos = videosStr.split(",");
 
 // the unedited video displayed in the toolbox when a user click on a video preview
 let base_video = document.getElementById('base_video');
+let base_video_div = document.getElementById('base_video_div_');
 
 //Handles the dragging of the toolbar around the DOM
 function dragElement(elmnt) {
@@ -460,6 +461,7 @@ imageBtn.addEventListener('click', () => {
     imageSettings.style.display = 'block';
     audioVideoSettings.style.display = 'none';
     document.getElementById('timeDiv').style.display = 'block'
+    base_video_div.style.display = 'none';
     search4Media();
 });
 
@@ -481,6 +483,7 @@ audioBtn.addEventListener('click', () => {
     audioVideoSettings.style.display = 'block';
     document.getElementById('base_audio').style.display = 'block'
     document.getElementById('timeDiv').style.display = 'none'
+    base_video_div.style.display = 'none';
     search4Media();
 });
 

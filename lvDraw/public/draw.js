@@ -391,7 +391,7 @@ function renderEraserSquare(x, y) {
 }
 
 // Highlight tht eborer to indicated the user that drawing mode is active
-function renderDrawingPreview(ctx) {
+function renderDrawingPreview() {
     if (Math.floor(time / 10) % 2 == 0) {
         drawCanvas.style.borderColor = '#ffff80';
     } else {
@@ -430,6 +430,8 @@ function drawLine(context, x1, y1, x2, y2) {
 function renderImagePreview() {
     if (mediaLink != "") {
         // draw the media object
+        mediaCTX.fillStyle = document.getElementById("color-picker2").value;
+        mediaCTX.font = `16px`;
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let sSize = sizeSlider.value;
@@ -459,9 +461,11 @@ function renderImagePreview() {
             mediaCTX.shadowBlur = 20;
             mediaCTX.lineJoin = "round";
             mediaCTX.lineWidth = 5;
-            // mediaCTX.strokeStyle = "#38f";
+
             mediaCTX.strokeRect((mouseX2 - width / 2), (mouseY2 - height / 2), width, height);
             mediaCTX.globalAlpha = 1;
+
+            mediaCTX.fillText(mediaMessage.value, mouseX2 - width / 2, mouseY2 - height / 2 - 5);
 
             // draw the image
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
@@ -497,17 +501,112 @@ function renderImagePreview() {
             // mediaCTX.strokeStyle = "#38f";
             mediaCTX.strokeRect((mouseX2 - width / 2) - 7, (mouseY2 - height / 2) - 7, width + 14, height + 14);
             mediaCTX.globalAlpha = 1;
-            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
 
-            // mediaCTX.rotate(-angle * Math.PI / 180);
+            mediaCTX.fillText(mediaMessage.value, mouseX2 - width / 2, mouseY2 - height / 2 - 5);
+
+            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.restore();
         }
+    }
+}
+
+function finalizeMedia() {
+    if (mode === 'addMedia') {
+        mainCTX.globalCompositeOperation = 'source-over';
+        mediaCTX.fillStyle = document.getElementById("color-picker2").value;
+        mediaCTX.font = `16px`;
+        if (mediaType === 'image') {
+            mainCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            let base_image = new Image();
+            base_image.src = './media/image/' + mediaLink;
+
+            let sSize = sizeSlider.value;
+            let HSize = sizeHSlider.value;
+            let VSize = sizeVSlider.value;
+            let angle = angleSlider.value;
+            let width, height;
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
+            } else {
+                width = HSize / 100 * base_image.width / 2;
+                height = VSize / 100 * base_image.height / 2;
+            }
+
+            mainCTX.save();
+            mainCTX.translate(mouseX2, mouseY2);
+            mainCTX.rotate(angle * Math.PI / 180);
+            mainCTX.translate(-mouseX2, -mouseY2);
+            mainCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            mainCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 + 5);
+            mainCTX.restore();
+
+            clearMediaPreviewDiv();
+            mediaMessage.value = '';
+            // clear the drawn image on the canvas after timeVal seconds
+            // clearMediaAfterTimeout(ctx, width, height);
+        }
+
+        if (mediaType === 'audio') {
+            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            base_image = new Image();
+            base_image.src = './media/image/soundIcon.png';
+
+            let VSize = sizeVSlider.value;
+            let HSize = sizeHSlider.value;
+            let sSize = sizeSlider.value;
+            let angle = angleSlider.value;
+            let width = HSize / 100 * 128;
+            let height = VSize / 100 * 128;
+            if (editMode == 'simple') {
+                width = sSize / 100 * base_image.width / 2;
+                height = sSize / 100 * base_image.height / 2;
+            } else {
+                width = HSize / 100 * base_image.width / 2;
+                height = VSize / 100 * base_image.height / 2;
+            }
+
+            //Draw sound icon
+            mediaCTX.save();
+            mediaCTX.translate(mouseX2, mouseY2);
+            mediaCTX.rotate(angle * Math.PI / 180);
+            mediaCTX.translate(-mouseX2, -mouseY2);
+            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            mainCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 + 5);
+            mediaCTX.restore();
+
+            var sound = new Audio();
+            sound.src = './media/audio/' + mediaLink;
+            sound.play()
+
+            clearMediaPreviewDiv();
+            mediaMessage.value = '';
+        }
+
+        if (mediaType == 'video') {
+            // tempMediaCanvas.dis
+            console.log('started playing video')
+            finalizeVideo = true;
+            // let drawPermVideo = setInterval(() => {
+            drawVideoTemp()
+            console.log('playing video')
+            // }, 1000 / 30);
+
+            setTimeout(() => {
+                // clearInterval(drawPermVideo);
+                finalizeVideo = false;
+                console.log('ended playing video')
+            }, base_video.duration * 1000);
+        }
+
     }
 }
 
 let finalizeVideo = false;
 
 function drawVideo() {
+    base_video_div.style.display = 'none';
+    mediaDisplay.style.display = 'block';
     base_video.addEventListener('play', function () {
         var $this = this; //cache
         (function loop() {
@@ -537,9 +636,9 @@ function drawVideo() {
 
                 // draw the "edit image" background behind the media object
                 if (Math.floor(time / 10) % 2)
-                    mediamediaCTX.fillStyle = '#ff0000';
+                    mediaCTX.fillStyle = '#ff0000';
                 else
-                    mediamediaCTX.fillStyle = '#000000';
+                    mediaCTX.fillStyle = '#000000';
 
                 mediaCTX.globalAlpha = .4;
                 mediaCTX.fillRect((mouseX2 - width / 2) - 3, (mouseY2 - height / 2) - 3, width + 6, height + 6);
@@ -548,14 +647,14 @@ function drawVideo() {
 
                 mediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
                 mediaCTX.restore();
+
                 if (mediaType === 'video' && finalizeVideo == false) {
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
                     return false;
                 }
                 else {
-                    mediaCTX.clearRect(0, 0, tempMediamediaCTX.width, tempMediamediaCTX.height);
+                    mediaCTX.clearRect(0, 0, mediaCTX.width, mediaCTX.height);
                 }
-
 
                 base_video.addEventListener('ended', () => {
                     base_video.play();
@@ -608,8 +707,6 @@ function drawVideoTemp() {
                 tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
             }
 
-            // base_video.addEventListener('ended', () => {
-            // base_video.play();
             if (timeO == false) {
                 setTimeout(() => {
                     finalizeVideo = false;
@@ -625,99 +722,6 @@ function drawVideoTemp() {
     // }, 0);
 }
 
-function finalizeMedia() {
-    if (mode === 'addMedia') {
-        mainCTX.globalCompositeOperation = 'source-over';
-        if (mediaType === 'image') {
-            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
-            let base_image = new Image();
-            base_image.src = './media/image/' + mediaLink;
-
-            let sSize = sizeSlider.value;
-            let HSize = sizeHSlider.value;
-            let VSize = sizeVSlider.value;
-            let angle = angleSlider.value;
-            let width, height;
-            if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 2;
-                height = sSize / 100 * base_image.height / 2;
-            } else {
-                width = HSize / 100 * base_image.width / 2;
-                height = VSize / 100 * base_image.height / 2;
-            }
-
-            mainCTX.save();
-            mainCTX.translate(mouseX2, mouseY2);
-            mainCTX.rotate(angle * Math.PI / 180);
-            mainCTX.translate(-mouseX2, -mouseY2);
-            mainCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-            mainCTX.font = `12px ${fontSelector.value}`;
-            mediaCTX.fillStyle = '#FFFFFF'
-            mainCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 + 5);
-            mainCTX.restore();
-
-            clearMediaPreviewDiv();
-            mediaMessage.value = '';
-            // clear the drawn image on the canvas after timeVal seconds
-            // clearMediaAfterTimeout(ctx, width, height);
-        }
-
-        if (mediaType === 'audio') {
-            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
-            base_image = new Image();
-            base_image.src = './media/image/soundIcon.png';
-
-            let VSize = sizeVSlider.value;
-            let HSize = sizeHSlider.value;
-            let sSize = sizeSlider.value;
-            let angle = angleSlider.value;
-            let width = HSize / 100 * 128;
-            let height = VSize / 100 * 128;
-            if (editMode == 'simple') {
-                width = sSize / 100 * base_image.width / 2;
-                height = sSize / 100 * base_image.height / 2;
-            } else {
-                width = HSize / 100 * base_image.width / 2;
-                height = VSize / 100 * base_image.height / 2;
-            }
-
-            //Draw sound icon
-            mediaCTX.save();
-            mediaCTX.translate(mouseX2, mouseY2);
-            mediaCTX.rotate(angle * Math.PI / 180);
-            mediaCTX.translate(-mouseX2, -mouseY2);
-            mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-            mediaCTX.font = `12px ${fontSelector.value}`;
-            mediaCTX.fillStyle = '#FFFFFF'
-            mediaCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 - 5);
-            mediaCTX.restore();
-
-            var sound = new Audio();
-            sound.src = './media/audio/' + mediaLink;
-            sound.play()
-
-            clearMediaPreviewDiv();
-            mediaMessage.value = '';
-        }
-
-        if (mediaType == 'video') {
-            // tempMediaCanvas.dis
-            console.log('started playing video')
-            finalizeVideo = true;
-            // let drawPermVideo = setInterval(() => {
-            drawVideoTemp()
-            console.log('playing video')
-            // }, 1000 / 30);
-
-            setTimeout(() => {
-                // clearInterval(drawPermVideo);
-                finalizeVideo = false;
-                console.log('ended playing video')
-            }, base_video.duration * 1000);
-        }
-
-    }
-}
 
 function finalizeDrawing() {
     mainCTX.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
@@ -769,7 +773,7 @@ let CTXRender = setInterval(() => {
     } else if (mode === 'text') {
         renderTextPreview(textCTX);
     } else if (mode === 'draw') {
-        renderDrawingPreview(drawCTX);
+        renderDrawingPreview();
     }
 }, 1000 / 30)
 
