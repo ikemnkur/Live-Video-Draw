@@ -585,18 +585,18 @@ function finalizeMedia() {
 
         if (mediaType == 'video') {
             // tempMediaCanvas.dis
-            console.log('started playing video')
+            // console.log('started playing video')
             finalizeVideo = true;
             // let drawPermVideo = setInterval(() => {
             drawVideoTemp()
-            console.log('playing video')
+            // console.log('playing video')
             // }, 1000 / 30);
 
-            setTimeout(() => {
-                // clearInterval(drawPermVideo);
-                finalizeVideo = false;
-                console.log('ended playing video')
-            }, base_video.duration * 1000);
+            // setTimeout(() => {
+            //     // clearInterval(drawPermVideo);
+            //     finalizeVideo = false;
+            //     // console.log('ended playing video')
+            // }, base_video.duration * 1000);
         }
 
     }
@@ -605,8 +605,9 @@ function finalizeMedia() {
 let finalizeVideo = false;
 
 function drawVideo() {
-    base_video_div.style.display = 'none';
-    mediaDisplay.style.display = 'block';
+    // base_video_div.style.display = 'none';
+    // mediaDisplay.style.display = 'block';
+   
     base_video.addEventListener('play', function () {
         var $this = this; //cache
         (function loop() {
@@ -628,6 +629,9 @@ function drawVideo() {
                     height = VSize / 100 * vHeight / 2;
                 }
 
+                mediaCTX.fillStyle = document.getElementById("color-picker2").value;
+                mediaCTX.font = `16px`;
+
                 mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
                 mediaCTX.save();
                 mediaCTX.translate(mouseX2, mouseY2);
@@ -646,6 +650,7 @@ function drawVideo() {
                 mediaCTX.globalAlpha = 1;
 
                 mediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+                mediaCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 - 10);
                 mediaCTX.restore();
 
                 if (mediaType === 'video' && finalizeVideo == false) {
@@ -668,49 +673,54 @@ function drawVideo() {
 function drawVideoTemp() {
     // base_video.play();
     let timeO = false;
-    // base_video.addEventListener('play', function () {
-    // var $this = this; //cache
-
+    
     console.log("start temp video");
+    var $this = base_video; //cache
+    let sSize = sizeSlider.value; // combined scale factor slider
+    let HSize = sizeHSlider.value; // horizontal scale factor slider
+    let VSize = sizeVSlider.value; // vertical scale factor slider
+    let angle = angleSlider.value;
+    let width, height; // final sizes
+    let mouseX2F = mouseX2;
+    let mouseY2F = mouseY2;
+
+
+    let vWidth = 300; // original size: width
+    let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
+    if (editMode == 'simple') {
+        width = sSize / 100 * vWidth / 2;
+        height = sSize / 100 * vHeight / 2;
+    } else {
+        width = HSize / 100 * vWidth / 2;
+        height = VSize / 100 * vHeight / 2;
+    }
+    tempMediaCTX.fillStyle = document.getElementById("color-picker2").value;
+    tempMediaCTX.font = `16px`;
+
     (function loop() {
-        var $this = base_video; //cache
+
         if (!$this.paused && !$this.ended) {
-            let sSize = sizeSlider.value; // combined scale factor slider
-            let HSize = sizeHSlider.value; // horizontal scale factor slider
-            let VSize = sizeVSlider.value; // vertical scale factor slider
-            let angle = angleSlider.value;
-            let width, height; // final sizes
 
-            let vWidth = 300; // original size: width
-            let vHeight = 300 * base_video.videoHeight / base_video.videoWidth; // original size: hieght
-
-            if (editMode == 'simple') {
-                width = sSize / 100 * vWidth / 2;
-                height = sSize / 100 * vHeight / 2;
-            } else {
-                width = HSize / 100 * vWidth / 2;
-                height = VSize / 100 * vHeight / 2;
-            }
-
-            tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+            tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            mediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             tempMediaCTX.save();
-            tempMediaCTX.translate(mouseX2, mouseY2);
+            tempMediaCTX.translate(mouseX2F, mouseY2F);
             tempMediaCTX.rotate(angle * Math.PI / 180);
-            tempMediaCTX.translate(-mouseX2, -mouseY2);
-
-            tempMediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
+            tempMediaCTX.translate(-mouseX2F, -mouseY2F);
+            tempMediaCTX.fillText(mediaMessage.value, mouseX2F, mouseY2F - height / 2 + 5);
+            tempMediaCTX.drawImage($this, mouseX2F - width / 2, mouseY2F - height / 2, width, height);
             tempMediaCTX.restore();
 
-            if (mediaType === 'video' && finalizeVideo == true)
+            if (finalizeVideo == true)
                 setTimeout(loop, 1000 / 30); // drawing at 30fps
             else {
-                tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+                tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             }
 
             if (timeO == false) {
                 setTimeout(() => {
                     finalizeVideo = false;
-                    tempMediaCTX.clearRect(0, 0, tempMediaCTX.width, tempMediaCTX.height);
+                    tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
                     console.log('done with temp video');
                     return 'done';
                 }, (mediaStopSlider.value - mediaStartSlider.value) * 1000);

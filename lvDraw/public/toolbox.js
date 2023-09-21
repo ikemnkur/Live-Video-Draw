@@ -13,7 +13,7 @@ let durationSlider = document.getElementById('durationSlider');
 let offsetInput = document.getElementById('offsetDuration');
 let volumeSlider = document.getElementById('volumeSlider');
 
-let bvd = document.getElementById("base_video_div_")
+let baseVideoDiv = document.getElementById("base_video_div_")
 let mediaDisplay = document.getElementById("mediaDisplay")
 
 // Erase tool
@@ -382,7 +382,7 @@ volumeValue.addEventListener('input', () => {
 let videoBackBtn = document.getElementById('videoBackBtn');
 videoBackBtn.addEventListener('click', () => {
     mediaDisplay.style.display = "block";
-    bvd.style.display = "none";
+    baseVideoDiv.style.display = "none";
 });
 
 // Play and pause the base video
@@ -462,6 +462,7 @@ imageBtn.addEventListener('click', () => {
     audioVideoSettings.style.display = 'none';
     document.getElementById('timeDiv').style.display = 'block'
     base_video_div.style.display = 'none';
+    mediaDisplay.style.display = 'block';
     search4Media();
 });
 
@@ -472,6 +473,7 @@ videoBtn.addEventListener('click', () => {
     imageSettings.style.display = 'block';
     document.getElementById('base_audio').style.display = 'none'
     audioVideoSettings.style.display = 'block';
+    mediaDisplay.style.display = 'block';
     document.getElementById('timeDiv').style.display = 'none'
     search4Media();
 });
@@ -484,6 +486,7 @@ audioBtn.addEventListener('click', () => {
     document.getElementById('base_audio').style.display = 'block'
     document.getElementById('timeDiv').style.display = 'none'
     base_video_div.style.display = 'none';
+    mediaDisplay.style.display = 'block';
     search4Media();
 });
 
@@ -603,7 +606,7 @@ function search4Media() {
                         mediaLink = "";
                         videoPreview.clicked = false;
                         base_video.src = "./media/video/Loading.mp4";
-                        bvd.style.display = "none";
+                        baseVideoDiv.style.display = "none";
                         mediaDisplay.style.display = "block";
                     }
                     else { //selecting the video preview
@@ -617,7 +620,7 @@ function search4Media() {
                         let height = parseInt(sizeSlider.value) / 100 * 240;
                         console.log("Dimensions: (" + width + "," + height + ")");
 
-                        bvd.style.display = "block";
+                        baseVideoDiv.style.display = "block";
                         mediaDisplay.style.display = "none";
                         // let mediaCTX = mediaCanvas.getContext('2d');
                         drawVideo();
@@ -845,6 +848,11 @@ simpleMode.addEventListener('click', () => {
     timeDiv.style.display = "none";
     timeValue.value = 5;
 });
+
+mediaMessage = document.getElementById("mediaMessage");
+mediaMessage.addEventListener('click', ()=>{
+    
+})
 
 // let eraseMode;
 /// erasing mode
