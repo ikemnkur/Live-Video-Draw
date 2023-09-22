@@ -55,13 +55,14 @@ var peer = new Peer({
 });
 
 // --------- Merge the user's drawings with the video stream  ---------//
-
+// The temporaray canavas will be used to merge all the videos and canvases together as one stream of images
 let temporaryCanvas = document.createElement('canvas');
 let temporaryCtx = temporaryCanvas.getContext('2d');
 temporaryCanvas.width = video.videoWidth;
 temporaryCanvas.height = video.videoHeight;
+let userDrawingStream = temporaryCanvas.captureStream(30); //this is the stream for the temporary canvas
 
-
+// overlay all the relavent canvases together
 function canvas2videoF() {
   if (videoCanvas != undefined) {
     // // Draw the video frame to the temporary drawCanvas.
@@ -79,15 +80,9 @@ setInterval(() => {
 }, 1000 / 30);
 
 var myVideoStream;
-let userDrawingStream = temporaryCanvas.captureStream(30);
-var videoObj;
 
-// navigator.mediaDevices
-//   .getUserMedia({
-//     audio: true,
-//     video: true,
-//   })
-//   .then((stream) => { 
+
+var videoObj;
 
 myVideoStream = userStream;
 let stream = myVideoStream;
@@ -96,11 +91,11 @@ let stream = myVideoStream;
 
 // add someone else's video stream to videoGrid
 peer.on("call", (call) => {
-  console.log('someone call me');
+  console.log('when someone calls me');
   call.answer(stream);
   const video = document.createElement("video");
   video.id = "otherVideo";
-  console.log("im last to join");
+  // console.log("im last to join");
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
   });
@@ -138,7 +133,6 @@ const addVideoStream = (video, stream) => {
   videoObj = createNewLiveVideo(stream);
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    // var videoObj = createNewLiveVideo(stream);
     videoGrid.append(videoObj);
     videoGrid.append(video);
   });

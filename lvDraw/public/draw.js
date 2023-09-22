@@ -66,16 +66,19 @@ let mediaLink = '';
 let angle = 0;
 let time = 0;
 
-// loops, 1 to 100 steps
+// loops, 1 to 100 steps, this is used for animation
 var interval = setInterval(() => {
     time++;
     if (time > 99) time = 0;
 }, 50);
 
-let drawing = false;
+let drawing = false; //Drawing mode
+// Mouse cooridinates
 let x = 0;
 let y = 0;
 
+// When Duplicating the Live Video element, 
+//the event listeners need to redefined as they arent copied during the duplication
 function setupEventListeners() {
 
     // ----------- Video Initialization ----------//
@@ -607,7 +610,7 @@ let finalizeVideo = false;
 function drawVideo() {
     // base_video_div.style.display = 'none';
     // mediaDisplay.style.display = 'block';
-   
+
     base_video.addEventListener('play', function () {
         var $this = this; //cache
         (function loop() {
@@ -629,8 +632,7 @@ function drawVideo() {
                     height = VSize / 100 * vHeight / 2;
                 }
 
-                mediaCTX.fillStyle = document.getElementById("color-picker2").value;
-                mediaCTX.font = `16px`;
+
 
                 mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
                 mediaCTX.save();
@@ -638,7 +640,7 @@ function drawVideo() {
                 mediaCTX.rotate(angle * Math.PI / 180);
                 mediaCTX.translate(-mouseX2, -mouseY2);
 
-                // draw the "edit image" background behind the media object
+                // draw the red glowing "edit image" background behind the media object
                 if (Math.floor(time / 10) % 2)
                     mediaCTX.fillStyle = '#ff0000';
                 else
@@ -649,16 +651,20 @@ function drawVideo() {
                 mediaCTX.fill();
                 mediaCTX.globalAlpha = 1;
 
+                // draws the video frame to the canvas
                 mediaCTX.drawImage($this, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
-                mediaCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 - 10);
+                //Draw the message text above the video
+                mediaCTX.fillStyle = document.getElementById("color-picker2").value;
+                mediaCTX.font = `16px`;
+                mediaCTX.fillText(mediaMessage.value, mouseX2, mouseY2 - height / 2 - 15);
                 mediaCTX.restore();
 
                 if (mediaType === 'video' && finalizeVideo == false) {
                     setTimeout(loop, 1000 / 30); // drawing at 30fps
-                    return false;
                 }
                 else {
                     mediaCTX.clearRect(0, 0, mediaCTX.width, mediaCTX.height);
+                    return false;
                 }
 
                 base_video.addEventListener('ended', () => {
@@ -673,7 +679,7 @@ function drawVideo() {
 function drawVideoTemp() {
     // base_video.play();
     let timeO = false;
-    
+
     console.log("start temp video");
     var $this = base_video; //cache
     let sSize = sizeSlider.value; // combined scale factor slider
@@ -700,9 +706,10 @@ function drawVideoTemp() {
     (function loop() {
 
         if (!$this.paused && !$this.ended) {
-
+            // clear both canvases
             tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             mediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            // rotation and scale of video and message
             tempMediaCTX.save();
             tempMediaCTX.translate(mouseX2F, mouseY2F);
             tempMediaCTX.rotate(angle * Math.PI / 180);
@@ -715,10 +722,11 @@ function drawVideoTemp() {
                 setTimeout(loop, 1000 / 30); // drawing at 30fps
             else {
                 tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                // timeO = false;
             }
 
-            if (timeO == false) {
-                setTimeout(() => {
+            if (timeO == false) {  // this will only run once
+                setTimeout(() => {  // in the 
                     finalizeVideo = false;
                     tempMediaCTX.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
                     console.log('done with temp video');
@@ -734,21 +742,18 @@ function drawVideoTemp() {
 
 
 function finalizeDrawing() {
+    //Sets the color that will be drawn on to the canvas
     mainCTX.strokeStyle = modeSelect.value === 'draw' ? colorPicker.value : '#FFFFFF';
-    // let oldBackgroundColor = drawCanvas.style.backgroundColor;
-    // drawCanvas.style.backgroundColor = "rgba(255, 255, 255, 0)"
-    async function firstFunction() {
+
+    async function firstFunction() {  // copys the image to the other canvas
+
         mainCTX.globalCompositeOperation = 'source-over';
         mainCTX.drawImage(drawCanvas, 0, 0)
         return;
     }
-    async function secondFunction() {
+    async function secondFunction() {  // clears the canvas
         await firstFunction();
-        // drawCanvas.style.backgroundColor = oldBackgroundColor;
         drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        // setTimeout(() => {
-        // drawCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        // }, 250);
     };
     secondFunction();
 

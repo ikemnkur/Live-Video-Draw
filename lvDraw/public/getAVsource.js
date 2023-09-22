@@ -82,9 +82,9 @@ function changeAudioDestination() {
 
 function gotStream(stream) {
     window.stream = stream; // make stream available to console
-    videoElement.srcObject = stream;
-    video.srcObject = stream;
-    userStream = stream;
+    videoElement.srcObject = stream; //Set the Video Preview (in the Settings Modal) source to this stream
+    video.srcObject = stream; //Set the liveVideo source to this stream
+    userStream = stream; // Store this stream globally
     // Refresh button list in case labels have become available
     return navigator.mediaDevices.enumerateDevices();
 }
@@ -101,8 +101,8 @@ function start() {
     }
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
-    userAudioSource = audioSource;
-    userVideoSource = videoSource;
+    userAudioSource = audioSource; // Store the Audio source globally
+    userVideoSource = videoSource; // Store the Video source globally
     const constraints = {
         audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
         video: {

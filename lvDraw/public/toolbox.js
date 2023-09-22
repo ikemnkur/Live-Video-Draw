@@ -112,7 +112,7 @@ let toolbox = document.getElementById("toolbox");
 let closeToolboxBtn = document.getElementById("closeToolboxBtn");
 let openToolboxBtn = document.getElementById("openToolboxButton");
 
-dragElement(toolbox)
+dragElement(toolbox);
 
 // Click the white on red X button to close toolbox
 closeToolboxBtn.addEventListener("click", () => {
@@ -295,7 +295,6 @@ doneBtn.addEventListener('click', () => {
         finalizeMedia();
     if (mode == "draw")
         finalizeDrawing();
-    
 });
 
 // Clicking on this button will do nothing for now, but should render an drawing 
