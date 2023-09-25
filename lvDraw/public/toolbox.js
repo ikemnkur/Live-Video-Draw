@@ -132,7 +132,7 @@ openToolboxBtn.addEventListener("click", () => {
 
 //clicking on this button will clear the selected canvases
 clearButton.addEventListener('click', () => {
-    mainCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height); 
+    mainCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     tempMediaCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 });
 
@@ -192,6 +192,13 @@ navigator.mediaDevices
 modeSelect.addEventListener('change', (e) => {
 
     mode = e.target.value;
+    changeMode(mode);
+
+});
+
+function changeMode(Mode) {
+    mode = Mode;
+
     eraseCTX.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     var StrokeSizeEditor = document.getElementById('StrokeSizeEditor');
     var ColorEditor = document.getElementById('ColorEditor');
@@ -208,6 +215,8 @@ modeSelect.addEventListener('change', (e) => {
         StrokeSizeEditor.style.display = 'none';
         mousePositions.style.display = 'none';
         StrokeSizeEditor.style.display = 'none';
+        modeSelect.selectedIndex = 0;
+
     } else {
         submitButtons.style.display = 'block';
         mousePositions.style.display = 'block';
@@ -221,6 +230,7 @@ modeSelect.addEventListener('change', (e) => {
         textCanvas.style.display = 'none';
         ColorEditor.style.display = 'block';
         StrokeSizeEditor.style.display = 'flex';
+        modeSelect.selectedIndex = 1;
     }
 
     if (mode === 'erase') {
@@ -231,6 +241,7 @@ modeSelect.addEventListener('change', (e) => {
         ColorEditor.style.display = 'none';
         StrokeSizeEditor.style.display = 'flex';
         eraseMode.style.display = 'block';
+        modeSelect.selectedIndex = 2;
     } else {
         eraseCanvas.style.display = 'none';
         eraseMode.style.display = 'none';
@@ -244,6 +255,7 @@ modeSelect.addEventListener('change', (e) => {
         StrokeSizeEditor.style.display = 'none';
         textEditor.style.display = 'block';
         document.getElementById("textAngleSlider").style.display = 'block';
+        modeSelect.selectedIndex = 3;
     } else {
         textEditor.style.display = 'none';
         textCanvas.style.display = 'none';
@@ -258,6 +270,7 @@ modeSelect.addEventListener('change', (e) => {
         mediaCanvas.style.cursor = 'move';
         ColorEditor.style.display = 'none';
         StrokeSizeEditor.style.display = 'none';
+        modeSelect.selectedIndex = 4;
     } else {
         mediaContainer.style.display = 'none';
         mediaCanvas.style.display = 'none';
@@ -276,15 +289,16 @@ modeSelect.addEventListener('change', (e) => {
         StrokeSizeEditor.style.display = 'none';
         userVideoPreviewDiv.style.display = 'block';
         userVideoPreview.muted = false;
+        let videoPreview = document.getElementById('videoPreview');
         userVideoPreview.srcObject = videoPreview.srcObject;
+        modeSelect.selectedIndex = 5;
     } else {
         submitButtons.style.display = 'block';
         mousePositions.style.display = 'block';
         userVideoPreviewDiv.style.display = 'none';
         userVideoPreview.muted = true;
     }
-
-});
+}
 
 // clicking on this button will finalize the image and render it arcoss the stream on the selected stream
 let doneBtn = document.getElementById('doneBtn');
@@ -356,7 +370,7 @@ sizeVValue.addEventListener('input', () => {
 let angleValue = document.getElementById('angleValue');
 angleSlider.addEventListener('input', () => {
     angleValue.value = angleSlider.value;
-    angle =  angleSlider.value;
+    angle = angleSlider.value;
     renderImagePreview();
 });
 angleValue.addEventListener('input', () => {
@@ -849,8 +863,8 @@ simpleMode.addEventListener('click', () => {
 });
 
 mediaMessage = document.getElementById("mediaMessage");
-mediaMessage.addEventListener('click', ()=>{
-    
+mediaMessage.addEventListener('click', () => {
+
 })
 
 // let eraseMode;

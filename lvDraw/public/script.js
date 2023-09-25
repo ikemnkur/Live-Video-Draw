@@ -60,7 +60,9 @@ let temporaryCanvas = document.createElement('canvas');
 let temporaryCtx = temporaryCanvas.getContext('2d');
 temporaryCanvas.width = video.videoWidth;
 temporaryCanvas.height = video.videoHeight;
-let userDrawingStream = temporaryCanvas.captureStream(30); //this is the stream for the temporary canvas
+let canvasCompositeStream = temporaryCanvas.captureStream(30); //this is the stream for the temporary canvas
+
+
 
 // overlay all the relavent canvases together
 function canvas2videoF() {
@@ -75,41 +77,50 @@ function canvas2videoF() {
 }
 
 // Update the temporary canvas @ 30 fps
-setInterval(() => {
+var updateCompositeCanvas = setInterval(() => {
   canvas2videoF();
 }, 1000 / 30);
 
 var myVideoStream;
 
-
 var videoObj;
 
-myVideoStream = userStream;
-let stream = myVideoStream;
-// addVideoStream(myVideo, stream);
-// videoGrid.append(document.getElementById("liveVideo"))
+navigator.mediaDevices
+  .getUserMedia({
+    audio: true,
+    video: true,
+  })
+  .then((mystream) => {
 
-// add someone else's video stream to videoGrid
-peer.on("call", (call) => {
-  console.log('when someone calls me');
-  call.answer(stream);
-  const video = document.createElement("video");
-  video.id = "otherVideo";
-  // console.log("im last to join");
-  call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream);
+    myVideoStream = canvasCompositeStream;
+    let stream = myVideoStream;
+    // addVideoStream(myVideo, stream);
+    // videoGrid.append(document.getElementById("liveVideo"))
+
+    // add someone else's video stream to videoGrid
+    peer.on("call", (call) => {
+      console.log('when someone calls me');
+      call.answer(stream);
+      const video = document.createElement("video");
+      video.id = "otherVideo";
+      // console.log("im last to join");
+      call.on("stream", (userVideoStream) => {
+        addVideoStream(video, userVideoStream);
+      });
+    });
+
+    //Set user name when someone connects
+    socket.on("user-connected", (userId, userName) => {
+      connectToNewUser(userId, stream);
+      newUsername = userName;
+      console.log("New username: " + newUsername);
+    });
   });
-});
-
-socket.on("user-connected", (userId, userName) => {
-  connectToNewUser(userId, stream);
-  newUsername = userName;
-  console.log("New username: " + newUsername);
-});
-// });
 
 // temporarily store the name of the last user to join the video chat call.
 let newUsername = ""
+// Store the number of live video streams
+let liveVideoCount = 0;
 
 const connectToNewUser = (userId, stream) => {
   console.log('I call someone' + userId);
@@ -130,10 +141,10 @@ peer.on("open", (id) => {
 
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
-  videoObj = createNewLiveVideo(stream);
+  createNewLiveVideo(stream);
+  liveVideoCount++;
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    videoGrid.append(videoObj);
     videoGrid.append(video);
   });
 };
@@ -210,25 +221,28 @@ socket.on("createMessage", (message, userName) => {
 
 
 function createNewLiveVideo(stream) {
-  let property = "I'm a property";
+
   let liveVideoTemp = document.getElementById("myLiveVideoDIV");
-  let liveVideo = liveVideoTemp.cloneNode(true);
-  liveVideo.id = liveVideo.id + "#" + newUsername;
+  var liveVideoDiv = liveVideoTemp.cloneNode(true);
+  liveVideoDiv.id = liveVideoDiv.id + "#" + newUsername;
 
   let temporaryCanvas = document.createElement('canvas');
   let temporaryCtx = temporaryCanvas.getContext('2d');
   temporaryCanvas.width = 320;
   temporaryCanvas.height = 240;
 
-  let video = liveVideo.children[0];
-  let videoCanvas = liveVideo.children[1];
-  let mainCanvas = liveVideo.children[2];
-  let tempMediaCanvas = liveVideo.children[3];
-  let drawCanvas = liveVideo.children[4];
-  let eraseCanvas = liveVideo.children[5];
-  let textCanvas = liveVideo.children[6];
-  let mediaCanvas = liveVideo.children[7];
-  let finalVideo = liveVideo.children[8];
+  // async function firstFunction() {  // copys the image to the other canvas
+
+
+  let video = liveVideoDiv.children[0];
+  let videoCanvas = liveVideoDiv.children[1];
+  let mainCanvas = liveVideoDiv.children[2];
+  let tempMediaCanvas = liveVideoDiv.children[3];
+  let drawCanvas = liveVideoDiv.children[4];
+  let eraseCanvas = liveVideoDiv.children[5];
+  let textCanvas = liveVideoDiv.children[6];
+  let mediaCanvas = liveVideoDiv.children[7];
+  let finalVideo = liveVideoDiv.children[8];
 
   let videoCTX = videoCanvas.getContext('2d');
   let mainCTX = mainCanvas.getContext('2d');
@@ -240,15 +254,17 @@ function createNewLiveVideo(stream) {
 
   let myVideoStream = temporaryCanvas.captureStream(30);
 
-  var mergedStream = mergeStreams(myVideoStream, userAudioSource);
+  // var mergedStream = mergeStreams(myVideoStream, userAudioSource);
   //this video stream to the VideoCanvas
-  video.srcObject = stream; 
-  //this video stream to the finalVideo obj
-  finalVideo.srcObject = mergedStream; 
+  video.srcObject = stream;
 
-  liveVideo.addEventListener("click", () => {
-    if (selectedLiveVideoID != liveVideo.id) {
-      selectStream(liveVideo)
+  //this video stream to the finalVideo obj
+  // finalVideo.srcObject = mergedStream;
+  finalVideo.srcObject = myVideoStream;
+
+  liveVideoDiv.addEventListener("click", () => {
+    if (selectedLiveVideoID != liveVideoDiv.id) {
+      selectStream(liveVideoDiv)
     }
   });
 
@@ -265,14 +281,36 @@ function createNewLiveVideo(stream) {
     canvas2video(videoCanvas, tempMediaCanvas, drawCanvas);
   }, 1000 / 30);
 
-  var children = liveVideo.children;
+  var children = liveVideoDiv.children;
   for (var i = 0; i < children.length; i++) {
     var child = children[i];
     child.id = child.id + "#" + newUsername;
   }
 
-  return liveVideo;
+  video.play();
+  // finalVideo.play();
 
+  // return;
+  // }
+
+  // async function secondFunction() {  // clears the canvas
+  // await firstFunction();
+  // videoObj = liveVideoDiv;
+  setTimeout(() => {
+    videoGrid.append(liveVideoDiv);
+  }, 1000);
+
+  finalVideo.addEventListener("loadedmetadata", () => {
+    finalVideo.play();
+    finalVideo.id = "OtherFinalVideo"
+    videoGrid.append(finalVideo);
+  });
+
+
+
+  // };
+
+  // secondFunction();
 }
 
 function mergeStreams(videoStream, audioStream) {
@@ -280,67 +318,56 @@ function mergeStreams(videoStream, audioStream) {
   return mergedStream;
 }
 
-// class liveVideoObj {
-//   constructor() {
-//     this.property = "I'm a property";
-//     this.liveVideoTemp = document.getElementById("myLiveVideoDIV");
-//     this.liveVideo = liveVideoTemp.cloneNode(true);
-//     this.liveVideo.id = this.liveVideo.id + "#" + newUsername;
 
-//     this.temporaryCanvas = document.createElement('canvas');
-//     this.temporaryCtx = temporaryCanvas.getContext('2d');
-//     this.temporaryCanvas.width = video.videoWidth;
-//     this.temporaryCanvas.height = video.videoHeight;
-//     this.stream;
-//     this.myVideoStream = temporaryCanvas.captureStream(30);
 
-//     this.video = this.liveVideo.children[0];
-//     this.videoCanvas = this.liveVideo.children[1];
-//     this.mainCanvas = this.liveVideo.children[2];
-//     this.tempMediaCanvas = this.liveVideo.children[3];
-//     this.drawCanvas = this.liveVideo.children[4];
-//     this.eraseCanvas = this.liveVideo.children[5];
-//     this.textCanvas = this.liveVideo.children[6];
-//     this.mediaCanvas = this.liveVideo.children[7];
+// function createNewLiveVideo(stream) {
 
-//     this.videoCTX = this.videoCanvas.getContext('2d');
-//     this.mainCTX = this.mainCanvas.getContext('2d');
-//     this.drawCTX = this.drawCanvas.getContext('2d');
-//     this.eraseCTX = this.eraseCanvas.getContext('2d');
-//     this.textCTX = this.textCanvas.getContext('2d');
-//     this.tempMediaCTX = this.tempMediaCanvas.getContext('2d');
-//     this.mediaCTX = this.mediaCanvas.getContext('2d');
+//   let liveVideoDiv = document.getElementById("myLiveVideoDIV"+liveVideoCount);
+//   // var liveVideoDiv = liveVideoTemp.cloneNode(true);
+//   // liveVideoDiv.id = liveVideoDiv.id + "#" + newUsername;
 
-//     this.liveVideo.addEventListener("click", () => {
-//       if (selectedLiveVideoID != this.liveVideo.id) {
-//         selectStream(this.liveVideo)
-//       }
-//     });
-//   }
+//   let temporaryCanvas = document.createElement('canvas');
+//   let temporaryCtx = temporaryCanvas.getContext('2d');
+//   temporaryCanvas.width = 320;
+//   temporaryCanvas.height = 240;
 
-//   // videoPlay() {
-//   // ----------- Video Initialization ----------//
-//   // this.video.addEventListener('play', function () {
-//   //   var $this = this; //cache
-//   //   (function loop() {
-//   //     if (!$this.paused && !$this.ended) {
-//   //       this.videoCTX.drawImage($this, 0, 0);
-//   //       setTimeout(loop, 1000 / 30); // drawing at 30fps
-//   //     }
-//   //   })();
-//   // }, 0);
+//   // async function firstFunction() {  // copys the image to the other canvas
 
-//   // }
 
-//   method() {
-//     console.log("Hello, I'm a method!");
-//   }
+//   let video = liveVideoDiv.children[0];
+//   let videoCanvas = liveVideoDiv.children[1];
+//   let mainCanvas = liveVideoDiv.children[2];
+//   let tempMediaCanvas = liveVideoDiv.children[3];
+//   let drawCanvas = liveVideoDiv.children[4];
+//   let eraseCanvas = liveVideoDiv.children[5];
+//   let textCanvas = liveVideoDiv.children[6];
+//   let mediaCanvas = liveVideoDiv.children[7];
+//   let finalVideo = liveVideoDiv.children[8];
 
-//   setStream(stream) {
-//     this.myStream = stream;
-//   }
+//   let videoCTX = videoCanvas.getContext('2d');
+//   let mainCTX = mainCanvas.getContext('2d');
+//   let drawCTX = drawCanvas.getContext('2d');
+//   let eraseCTX = eraseCanvas.getContext('2d');
+//   let textCTX = textCanvas.getContext('2d');
+//   let tempMediaCTX = tempMediaCanvas.getContext('2d');
+//   let mediaCTX = mediaCanvas.getContext('2d');
 
-//   canvas2video(videoCanvas, tempMediaCanvas, drawCanvas) {
+//   let myVideoStream = temporaryCanvas.captureStream(30);
+
+//   // var mergedStream = mergeStreams(myVideoStream, userAudioSource);
+//   //this video stream to the VideoCanvas
+//   video.srcObject = stream;
+//   //this video stream to the finalVideo obj
+//   // finalVideo.srcObject = mergedStream;
+//   finalVideo.srcObject = myVideoStream;
+
+//   liveVideoDiv.addEventListener("click", () => {
+//     if (selectedLiveVideoID != liveVideoDiv.id) {
+//       selectStream(liveVideoDiv)
+//     }
+//   });
+
+//   function canvas2video(videoCanvas, tempMediaCanvas, drawCanvas) {
 //     // Draw the video frame to the temporary drawCanvas.
 //     temporaryCtx.drawImage(videoCanvas, 0, 0);
 //     // Then draw the main canvas (drawing) on top of that.
@@ -349,31 +376,36 @@ function mergeStreams(videoStream, audioStream) {
 //     temporaryCtx.drawImage(drawCanvas, 0, 0);
 //   }
 
-//   updateCanvas() {
-//     // this.videoPlay();
-//     this.updates = setInterval(() => {
-//       this.canvas2video(this.videoCanvas, this.tempMediaCanvas, this.drawCanvas);
-//     }, 1000 / 30);
+//   let updates = setInterval(() => {
+//     canvas2video(videoCanvas, tempMediaCanvas, drawCanvas);
+//   }, 1000 / 30);
+
+//   var children = liveVideoDiv.children;
+//   for (var i = 0; i < children.length; i++) {
+//     var child = children[i];
+//     child.id = child.id + "#" + newUsername;
 //   }
 
-//   createElements() {
-//     var children = this.liveVideo.children;
-//     for (var i = 0; i < children.length; i++) {
-//       var child = children[i];
-//       child.id = child.id + "#" + newUsername;
-//     }
+//   video.play();
+//   // finalVideo.play();
 
-//     // this.video.srcObject = stream;
-//     // this.video.play();
-//   }
+//   // return;
+//   // }
 
-//   renderElement() {
-//     return this.liveVideo;
-//   }
+//   // async function secondFunction() {  // clears the canvas
+//   // await firstFunction();
+//   // videoObj = liveVideoDiv;
+//   setTimeout(() => {
+//     videoGrid.append(liveVideoDiv);
+//   }, 1000);
 
+//   finalVideo.addEventListener("loadedmetadata", () => {
+//     finalVideo.play();
+//     finalVideo.id = "OtherFinalVideo";
+//     videoGrid.append(finalVideo);
+//   });
 
+//   // };
+
+//   // secondFunction();
 // }
-
-// const obj = new liveVideoObj();
-// console.log(obj.property);
-// obj.method();

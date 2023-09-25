@@ -291,7 +291,7 @@ function setupEventListeners() {
         }
     });
 
-
+    changeMode("view");
 
 }
 
@@ -435,6 +435,7 @@ function renderImagePreview() {
         // draw the media object
         mediaCTX.fillStyle = document.getElementById("color-picker2").value;
         mediaCTX.font = `16px`;
+       
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let sSize = sizeSlider.value;
@@ -474,7 +475,6 @@ function renderImagePreview() {
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.restore();
         }
-
         if (mediaType === 'audio') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let base_image = new Image();
@@ -510,6 +510,8 @@ function renderImagePreview() {
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.restore();
         }
+    } else{
+        mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
     }
 }
 
@@ -519,7 +521,7 @@ function finalizeMedia() {
         mediaCTX.fillStyle = document.getElementById("color-picker2").value;
         mediaCTX.font = `16px`;
         if (mediaType === 'image') {
-            mainCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            mediaCTX.clearRect(0, 0, textCanvas.width, textCanvas.height);
             let base_image = new Image();
             base_image.src = './media/image/' + mediaLink;
 
@@ -792,3 +794,16 @@ let CTXRender = setInterval(() => {
     }
 }, 1000 / 30)
 
+
+
+
+
+let video2 = document.getElementById('video2');
+video2.src = './media/video/videoblocks-eurasian-wolf-canis-lupus-lupus-1_rwmtgm8ec__c6231f1487418053efa23e91f2e61b74__P360.mp4'
+video2.play()
+let liveVideoDiv2 = document.getElementById('liveVideoDIV2');
+liveVideoDiv2.addEventListener('click', () => {
+    if (selectedLiveVideoID != liveVideoDiv2.id) {
+        selectStream(liveVideoDiv2);
+    }
+})

@@ -210,7 +210,7 @@
                         <input id="angleSlider" type="range" min="-180" max="180" value="0">
                         <textarea id="angleValue" style="resize: none;">0</textarea> <label> °</Label>
                     </div>
-                    
+
                     <div id="messageDiv" style="display: none;">
                         <label style="padding-right: 2px;">Text: </label>
                         <input id="mediaMessage" placeholder="enter a short message"></input>
@@ -271,7 +271,41 @@
                             style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
                         <video id="finalVideo" autoplay playsinline style="display: none;" width="320"></video>
                     </div>
-                    <!-- </div> -->
+
+                    <div id="liveVideoDIV1" class="canvas-container">
+                        <video id="video1" autoplay playsinline style="display: none;" width="320" height="240"></video>
+                        <canvas id="videoCanvas1" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="tempMediaCanvas1" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mainCanvas1"
+                            style="cursor: default; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="drawCanvas1"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="eraseCanvas1"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mediaCanvas1"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="textCanvas1"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <video id="finalVideo1" autoplay playsinline style="display: none;" width="320"></video>
+                    </div>
+
+                    <div id="liveVideoDIV2" class="canvas-container">
+                        <video id="video2" autoplay playsinline style="display: none;" width="320" height="240"></video>
+                        <canvas id="videoCanvas2" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="tempMediaCanvas2" style="border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mainCanvas2"
+                            style="cursor: default; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="drawCanvas2"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="eraseCanvas2"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="mediaCanvas2"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <canvas id="textCanvas2"
+                            style="display: none; cursor: crosshair; border: 5px solid; border-radius: 5px;"></canvas>
+                        <video id="finalVideo2" autoplay playsinline style="display: none;" width="320"></video>
+                    </div>
+        
 
                 </div>
             </div>
