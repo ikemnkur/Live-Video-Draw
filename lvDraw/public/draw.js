@@ -80,13 +80,33 @@ let y = 0;
 // When Duplicating the Live Video element, 
 //the event listeners need to redefined as they arent copied during the duplication
 function setupEventListeners() {
-
     // ----------- Video Initialization ----------//
+    video.videoWidth = 320;
+    video.videoHeight = 240;
+    // video.height = video.videoHeight / video.videoWidth * 320;
+    // video.width = 320;
+    mainCanvas.width = video.videoWidth;
+    mainCanvas.height = video.videoHeight;
+    drawCanvas.width = video.videoWidth;
+    drawCanvas.height = video.videoHeight;
+    eraseCanvas.width = video.videoWidth;
+    eraseCanvas.height = video.videoHeight;
+    textCanvas.width = video.videoWidth;
+    textCanvas.height = video.videoHeight;
+    videoCanvas.width = video.videoWidth;
+    videoCanvas.height = video.videoHeight;
+    mediaCanvas.width = video.videoWidth;
+    mediaCanvas.height = video.videoHeight;
+    tempMediaCanvas.width = video.videoWidth;
+    tempMediaCanvas.height = video.videoHeight;
+
+
     video.addEventListener('play', () => {
-        video.videoHeight = video.videoHeight / video.videoWidth * 320;
+        // video.videoHeight = video.videoHeight / video.videoWidth * 320;
         video.videoWidth = 320;
-        video.height = video.videoHeight / video.videoWidth * 320;
-        video.width = 320;
+        video.videoHeight = 240;
+        // video.height = video.videoHeight / video.videoWidth * 320;
+        // video.width = 320;
         mainCanvas.width = video.videoWidth;
         mainCanvas.height = video.videoHeight;
         drawCanvas.width = video.videoWidth;
@@ -435,7 +455,7 @@ function renderImagePreview() {
         // draw the media object
         mediaCTX.fillStyle = document.getElementById("color-picker2").value;
         mediaCTX.font = `16px`;
-       
+
         if (mediaType === 'image') {
             mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
             let sSize = sizeSlider.value;
@@ -510,7 +530,7 @@ function renderImagePreview() {
             mediaCTX.drawImage(base_image, mouseX2 - width / 2, mouseY2 - height / 2, width, height);
             mediaCTX.restore();
         }
-    } else{
+    } else {
         mediaCTX.clearRect(0, 0, mediaCanvas.width, mediaCanvas.height);
     }
 }
